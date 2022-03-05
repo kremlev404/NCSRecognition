@@ -17,17 +17,26 @@
 using namespace cv;
 using namespace std;
 
+
 static const char* keys =
-"{ i images_path      |/home/kremlev/study/data/images| path to images }"
-"{ m models_path      |/home/kremlev/study/data/vinoModels/| path to models  }"
-"{ v video_path       |/home/kremlev/study/data/video/Elon.mp4| path to models  }"
+"{ i images_path      |/study/data/images| path to images }"
+"{ m models_path      |/study/data/vinoModels/| path to models  }"
+"{ v video_path       |/study/data/video/Elon.mp4| path to models  }"
 "{ n numbers          |2| number of images to process }"
-"{ o outpath          |/home/kremlev/study/data/output/| path to save clips }"
+"{ o outpath          |/study/data/output/| path to save clips }"
 "{ q ? help usage     | <none> | print help message      }";
 
 int main(int argc, char** argv) {
 
 	CommandLineParser parser(argc, argv, keys);
+	std::string home_dir = "";
+	std::cout << argc;
+	
+	if(argc > 1){
+		home_dir = "/home/pi";
+	}else{
+		home_dir = "/home/kremlev";
+	}
 	
 	if (!parser.check())
 	{
@@ -36,12 +45,12 @@ int main(int argc, char** argv) {
 		return 0;
 	}
 
-	String detection_model_path = parser.get<String>("models_path")  + "face-detection-retail-0004/FP16/face-detection-retail-0004.xml";
-	String detection_config_path = parser.get<String>("models_path") + "face-detection-retail-0004/FP16/face-detection-retail-0004.bin";
-	String landmarks_model_path = parser.get<String>("models_path")  + "landmarks-regression-retail-0009/FP16/landmarks-regression-retail-0009.xml";
-	String landmarks_config_path = parser.get<String>("models_path") + "landmarks-regression-retail-0009/FP16/landmarks-regression-retail-0009.bin";
-	String recognizer_config_path = parser.get<String>("models_path")+ "face-reidentification-retail-0095/FP16/face-reidentification-retail-0095.bin";
-	String recognizer_model_path = parser.get<String>("models_path") + "face-reidentification-retail-0095/FP16/face-reidentification-retail-0095.xml";
+	String detection_model_path = home_dir + parser.get<String>("models_path")  + "face-detection-retail-0004/FP16/face-detection-retail-0004.xml";
+	String detection_config_path = home_dir + parser.get<String>("models_path") + "face-detection-retail-0004/FP16/face-detection-retail-0004.bin";
+	String landmarks_model_path = home_dir + parser.get<String>("models_path")  + "landmarks-regression-retail-0009/FP16/landmarks-regression-retail-0009.xml";
+	String landmarks_config_path = home_dir + parser.get<String>("models_path") + "landmarks-regression-retail-0009/FP16/landmarks-regression-retail-0009.bin";
+	String recognizer_config_path = home_dir + parser.get<String>("models_path")+ "face-reidentification-retail-0095/FP16/face-reidentification-retail-0095.bin";
+	String recognizer_model_path = home_dir + parser.get<String>("models_path") + "face-reidentification-retail-0095/FP16/face-reidentification-retail-0095.xml";
 
 	String video_path = parser.get<String>("video_path");
 
