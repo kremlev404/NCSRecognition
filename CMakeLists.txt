@@ -1,0 +1,32 @@
+CMAKE_MINIMUM_REQUIRED(VERSION 3.13)
+
+project(ncs_recognition)
+
+IF (NOT CMAKE_BUILD_TYPE)
+    SET (CMAKE_BUILD_TYPE Release)
+ENDIF()
+
+SET(CMAKE_CXX_STANDARD 17)
+#SET(CMAKE_CXX_COMPILER /usr/bin/arm-linux-gnueabihf-g++)
+#-march=armv7-a
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -std=c++17 -Wno-psabi -pthread")
+
+FIND_PACKAGE(OpenCV REQUIRED)
+SET(REQUIRED_OpenCV_VERSION 4.1)
+IF (OpenCV_VERSION VERSION_LESS REQUIRED_OpenCV_VERSION)
+	MESSAGE(FATAL_ERROR "At least OpenCV ${REQUIRED_OpenCV_VERSION} is required")
+ENDIF()
+MESSAGE("- Found OpenCV ${OpenCV_VERSION}")
+
+find_package(Eigen3 REQUIRED)
+message( [Main] " EIGEN3_INCLUDE_DIRS = ${EIGEN3_INCLUDE_DIRS}") 
+INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIRS})
+
+SET(IE_DIR $ENV{INTEL_OPENVINO_DIR}/inference_engine/)
+message(IE_DIR ${IE_DIR})
+INCLUDE_DIRECTORIES("include")
+INCLUDE_DIRECTORIES("3rdparty_include")
+message(IE_DIR ${3rdparty_include})
+message(IE_DIR ${include})
+
+ADD_SUBDIRECTORY(src)
