@@ -29,12 +29,12 @@ static const char* keys =
 int main(int argc, char** argv) {
 
 	CommandLineParser parser(argc, argv, keys);
-	std::string home_dir = "";
+	String home_dir = "";
 	std::cout << argc;
 	
-	if(argc > 1){
+	if(argc > 1) {
 		home_dir = "/home/pi";
-	}else{
+	} else {
 		home_dir = "/home/kremlev";
 	}
 	
@@ -52,11 +52,11 @@ int main(int argc, char** argv) {
 	String recognizer_config_path = home_dir + parser.get<String>("models_path")+ "face-reidentification-retail-0095/FP16/face-reidentification-retail-0095.bin";
 	String recognizer_model_path = home_dir + parser.get<String>("models_path") + "face-reidentification-retail-0095/FP16/face-reidentification-retail-0095.xml";
 
-	String video_path = parser.get<String>("video_path");
+	String video_path = home_dir + parser.get<String>("video_path");
 
-	String out_path = parser.get<String>("outpath"); // path where we will save cropped video clips;
+	String out_path = home_dir + parser.get<String>("outpath"); // path where we will save cropped video clips;
 
-	String images_path = parser.get<String>("images_path"); // path where we will save cropped video clips;
+	String images_path = home_dir + parser.get<String>("images_path"); // path where we will save cropped video clips;
 
 	int images_number = parser.get<int>("numbers");
 
