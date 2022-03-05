@@ -1,0 +1,33 @@
+INCLUDE_DIRECTORIES("include") # BUILD HEADERS
+INCLUDE_DIRECTORIES("${OpenCV_INCLUDE_DIRS}")
+INCLUDE_DIRECTORIES("${IE_DIR}/include")
+
+LINK_DIRECTORIES("${IE_DIR}/lib/armv7l")
+LINK_DIRECTORIES("${IE_DIR}/lib/intel64")
+
+SET(IE_SHARED_LIBS libinference_engine.so)
+
+# MAKE CPP LIBRARY
+SET(SOURCES lib/cpp/classifier.cpp lib/cpp/ie_facenet_v1.cpp)
+ADD_LIBRARY(CPPClassificator SHARED ${SOURCES})
+TARGET_LINK_LIBRARIES(CPPClassificator ${OpenCV_LIBS} ${IE_SHARED_LIBS})
+
+# MAKE CPP EXAMPLE
+SET(SOURCES example/cpp_example.cpp)
+ADD_EXECUTABLE(CPPExample ${SOURCES})
+TARGET_LINK_LIBRARIES(CPPExample CPPClassificator ${OpenCV_LIBS} ${IE_SHARED_LIBS}  "stdc++fs")
+
+# MAKE C WRAPPER
+SET(SOURCES lib/c/cwrapper.cpp)
+ADD_LIBRARY(CClassificator SHARED ${SOURCES})
+TARGET_LINK_LIBRARIES(CClassificator CPPClassificator ${OpenCV_LIBS} ${IE_SHARED_LIBS})
+
+# MAKE C EXAMPLE
+SET(SOURCES example/c_example.cpp)
+ADD_EXECUTABLE(CExample ${SOURCES})
+TARGET_LINK_LIBRARIES(CExample CClassificator ${OpenCV_LIBS} ${IE_SHARED_LIBS} "stdc++fs")
+
+INSTALL (TARGETS CPPClassificator CClassificator CExample CPPExample
+    DESTINATION ${PROJECT_SOURCE_DIR}/install/bin)
+INSTALL (DIRECTORY ${PROJECT_SOURCE_DIR}/include
+    DESTINATION ${PROJECT_SOURCE_DIR}/install)
