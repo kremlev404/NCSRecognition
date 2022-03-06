@@ -1,16 +1,9 @@
-/*
-    Author: Boris Sekachev
-    Email: b.sekachev@yandex.ru
-    Organization: NNTU
-    Year: 2019
-*/
-
 #include <string>
 #include <opencv2/imgproc/imgproc.hpp>
 
 #include "ie_facenet_v1.hpp"
 
-IEFacenet_V1::IEFacenet_V1(const std::string xml, const std::string bin, const std::string device) {
+IEFacenet_V1::IEFacenet_V1(const std::string& xml, const std::string& bin, const std::string& device) {
     using namespace InferenceEngine; 
 
     Core ie;

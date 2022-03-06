@@ -13,5 +13,10 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 *.so
+.idea
+cmake-build-release
+cmake-build-debug
+pi/.idea/
+pi/cmake-build-debug/
 NCSRecognition
 build/

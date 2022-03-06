@@ -1,10 +1,3 @@
-/*
-    Author: Boris Sekachev
-    Email: b.sekachev@yandex.ru
-    Organization: NNTU
-    Year: 2019
-*/
-
 #include <filesystem>
 #include <iostream>
 #include <memory>
@@ -15,46 +8,61 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/videoio/videoio.hpp>
 
-#include "classifier.hpp"
+#include "classifier_factory.hpp"
 
 static const cv::String keys =
+        "{user_name      |kremlev| name of system user        }"
+        "{args_include   |false| use custom config               }"
         "{device         |MYRIAD| backend device (CPU, MYRIAD)}"
         "{xml            |<none>| path to model definition    }"
         "{bin            |<none>| path to model weights       }"
-        "{detector       |<nonde>| path to face detector       }"
+        "{detector       |<nonde>| path to face detector      }"
         "{db             |<none>| path to reference people    }"
-        "{width          |640| stream width                }"
-        "{height         |480| stream height               }"
-        "{flip           |false| flip stream images          }"
-        "{GUI            |yes| show gui                    }"
-    ;
+        "{width          |640| stream width                   }"
+        "{height         |480| stream height                  }"
+        "{flip           |false| flip stream images           }"
+        "{gui            |true| show gui                       }"
+        "{help           |false| show gui                       }";
 
-// In this sample we use cpp interface
-int main(int argc, char* argv[]) {
+
+int main(int argc, char *argv[]) {
     cv::CommandLineParser parser(argc, argv, keys);
-    const std::string device = parser.get<std::string>("device");
-    
-    std::string home_dir= "";
-    if(argc > 1) {
-        home_dir = "/home/kremlev";
-    } else {
-        home_dir = "/home/pi";
+
+    if (!parser.check()) {
+        parser.printErrors();
+        throw "Parse error";
+        return 0;
     }
-    const std::string xml = home_dir + "/study/data/face-reidentification-retail-0095.xml";//parser.get<std::string>("xml");
-    const std::string bin = home_dir + "/study/data/face-reidentification-retail-0095.bin";//parser.get<std::string>("bin");
-    const std::string detector = home_dir + "/study/data/haarcascade_frontalcatface.xml";//parser.get<std::string>("detector");
-    const std::string db = home_dir + "/study/data/db/";//parser.get<std::string>("db");
-    const std::string GUI = parser.get<std::string>("GUI");
+
+    if (parser.get<bool>("help") == true) {
+        std::cout << keys;
+        return 0;
+    }
+
+    std::string home_dir = "/home/" + parser.get<std::string>("user_name");
+    std::string xml, bin, detector, db;
+
+    if (parser.get<bool>("args_include") == true) {
+        xml = bin = detector = db = home_dir;
+        xml += "/study/data/face-reidentification-retail-0095.xml";
+        bin += "/study/data/face-reidentification-retail-0095.bin";
+        detector += "/study/data/haarcascade_frontalcatface.xml";
+        db += "/study/data/db/";
+    } else {
+        xml = parser.get<std::string>("xml");
+        bin = parser.get<std::string>("bin");
+        detector = parser.get<std::string>("detector");
+        db = parser.get<std::string>("db");
+    }
+
+    const std::string device = parser.get<std::string>("device");
+    const bool gui = parser.get<bool>("gui");
     const bool flip = parser.get<bool>("flip");
     const int width = parser.get<int>("width");
     const int height = parser.get<int>("height");
-    if (!parser.check()) {
-        parser.printErrors();
-        return 0;
-    }
-    
+
     cv::VideoCapture capture(home_dir + "/study/data/video/me.mp4");
-        if (!capture.isOpened()) {
+    if (!capture.isOpened()) {
         throw new std::runtime_error("Couldn't open a video stream");
     }
 
@@ -64,10 +72,10 @@ int main(int argc, char* argv[]) {
     std::cout << "Face detector: " << detector << std::endl;
     std::cout << "People: " << db << std::endl;
     std::cout << "Resolution: " << width << "x" << height << std::endl;
-    std::cout << "GUI: " << GUI << std::endl;
+    std::cout << "gui: " << gui << std::endl;
 
-    if (GUI == std::string("yes")) {
-        cv::namedWindow("frames");
+    if (gui == true) {
+        cv::namedWindow("NCSRecognition");
     }
 
     // Load face detector
@@ -75,7 +83,7 @@ int main(int argc, char* argv[]) {
     cascade.load(detector);
 
     const std::shared_ptr<Classifier> classifier = build_classifier(
-        ClassifierType::IE_Facenet_V1, xml, bin, device);
+            ClassifierType::IE_Facenet_V1, xml, bin, device);
 
     std::vector<cv::Rect> faces;
 
@@ -102,7 +110,7 @@ int main(int argc, char* argv[]) {
         cv::resize(face_image, face_image, cv::Size(160, 160));
         std::vector<float> reference = classifier->embed(face_image);
         std::cout << entry.path() << std::endl;
-        for (float& number: reference) {
+        for (float &number: reference) {
             std::cout << number << ",";
         }
 
@@ -113,7 +121,7 @@ int main(int argc, char* argv[]) {
     // Now run webcam stream
     while (true) {
         std::chrono::high_resolution_clock::time_point t1 =
-            std::chrono::high_resolution_clock::now();
+                std::chrono::high_resolution_clock::now();
 
         // Get frame and detect faces
         capture >> image;
@@ -124,14 +132,14 @@ int main(int argc, char* argv[]) {
         cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
         cascade.detectMultiScale(gray, faces, 1.5, 5, 0, cv::Size(150, 150));
 
-        for (cv::Rect &face : faces) {
+        for (cv::Rect &face: faces) {
             bool ignore = false;
             for (cv::Rect &another_face: faces) {
                 if (face.x > another_face.x && face.y > another_face.y
                     && face.x + face.width < another_face.x + another_face.width
                     && face.y + face.height < another_face.y + another_face.height) {
-                        ignore = true;
-                    }
+                    ignore = true;
+                }
             }
 
             if (ignore) {
@@ -148,7 +156,7 @@ int main(int argc, char* argv[]) {
             // Find it's across saved people
             float minDistance = 100;
             std::string minKey;
-            for (const std::pair<std::string, std::vector<float>> &pair : people) {
+            for (const std::pair<std::string, std::vector<float>> &pair: people) {
                 float distance = classifier->distance(pair.second, result);
                 if (distance < minDistance) {
                     minDistance = distance;
@@ -159,14 +167,14 @@ int main(int argc, char* argv[]) {
             // Approximate threshold
             if (minDistance > 1) {
                 cv::putText(image, "unknown", cv::Point(face.tl()),
-                    cv::FONT_HERSHEY_COMPLEX_SMALL, 1.5, cv::Scalar(0, 0, 255));
+                            cv::FONT_HERSHEY_COMPLEX_SMALL, 1.5, cv::Scalar(0, 0, 255));
             } else {
                 std::string text =
-                    minKey + std::string(": ") + std::to_string(minDistance);
+                        minKey + std::string(": ") + std::to_string(minDistance);
                 cv::putText(image, text, cv::Point(face.tl()),
-                    cv::FONT_HERSHEY_COMPLEX_SMALL, 1.5, cv::Scalar(0, 0, 255));
+                            cv::FONT_HERSHEY_COMPLEX_SMALL, 1.5, cv::Scalar(0, 0, 255));
 
-                if (GUI != std::string("yes")) {
+                if (gui != true) {
                     std::cout << "Found -> " << text << std::endl;
                 }
             }
@@ -174,16 +182,16 @@ int main(int argc, char* argv[]) {
 
         // Compute FPS
         std::chrono::high_resolution_clock::time_point t2 =
-            std::chrono::high_resolution_clock::now();
+                std::chrono::high_resolution_clock::now();
         auto difference =
-            std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+                std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
         cv::putText(image, std::to_string(1000 / difference), cv::Point(50, 50),
-            cv::FONT_HERSHEY_COMPLEX_SMALL, 2.0, cv::Scalar(0, 255, 255)
+                    cv::FONT_HERSHEY_COMPLEX_SMALL, 2.0, cv::Scalar(0, 255, 255)
         );
 
-        if (GUI == std::string("yes")) {
-            imshow("frames", image);
-            const int waitKey = cv::waitKey(30);
+        if (gui == true) {
+            imshow("NCSRecognition", image);
+            const int waitKey = cv::waitKey(20);
             if (waitKey == 27) {
                 break;
             }
