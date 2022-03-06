@@ -17,15 +17,7 @@
 
 #include "classifier.hpp"
 
-
-// In this sample we use cpp interface
-int main(int argc, char* argv[]) {
-    cv::VideoCapture capture(0);
-        if (!capture.isOpened()) {
-        throw new std::runtime_error("Couldn't open a video stream");
-    }
-
-    const cv::String keys =
+static const cv::String keys =
         "{device         |MYRIAD| backend device (CPU, MYRIAD)}"
         "{xml            |<none>| path to model definition    }"
         "{bin            |<none>| path to model weights       }"
@@ -36,12 +28,22 @@ int main(int argc, char* argv[]) {
         "{flip           |false| flip stream images          }"
         "{GUI            |yes| show gui                    }"
     ;
+
+// In this sample we use cpp interface
+int main(int argc, char* argv[]) {
     cv::CommandLineParser parser(argc, argv, keys);
     const std::string device = parser.get<std::string>("device");
-    const std::string xml = "/home/kremlev/study/data/face-reidentification-retail-0095.xml";//parser.get<std::string>("xml");
-    const std::string bin = "/home/kremlev/study/data/face-reidentification-retail-0095.bin";//parser.get<std::string>("bin");
-    const std::string detector = "/home/kremlev/study/data/haarcascade_frontalcatface.xml";//parser.get<std::string>("detector");
-    const std::string db = "/home/kremlev/study/data/db/";//parser.get<std::string>("db");
+    
+    std::string home_dir= "";
+    if(argc > 1) {
+        home_dir = "/home/kremlev";
+    } else {
+        home_dir = "/home/pi";
+    }
+    const std::string xml = home_dir + "/study/data/face-reidentification-retail-0095.xml";//parser.get<std::string>("xml");
+    const std::string bin = home_dir + "/study/data/face-reidentification-retail-0095.bin";//parser.get<std::string>("bin");
+    const std::string detector = home_dir + "/study/data/haarcascade_frontalcatface.xml";//parser.get<std::string>("detector");
+    const std::string db = home_dir + "/study/data/db/";//parser.get<std::string>("db");
     const std::string GUI = parser.get<std::string>("GUI");
     const bool flip = parser.get<bool>("flip");
     const int width = parser.get<int>("width");
@@ -49,6 +51,11 @@ int main(int argc, char* argv[]) {
     if (!parser.check()) {
         parser.printErrors();
         return 0;
+    }
+    
+    cv::VideoCapture capture(home_dir + "/study/data/video/me.mp4");
+        if (!capture.isOpened()) {
+        throw new std::runtime_error("Couldn't open a video stream");
     }
 
     std::cout << "Device: " << device << std::endl;

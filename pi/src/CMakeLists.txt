@@ -14,20 +14,10 @@ TARGET_LINK_LIBRARIES(CPPClassificator ${OpenCV_LIBS} ${IE_SHARED_LIBS})
 
 # MAKE CPP EXAMPLE
 SET(SOURCES example/cpp_example.cpp)
-ADD_EXECUTABLE(CPPExample ${SOURCES})
-TARGET_LINK_LIBRARIES(CPPExample CPPClassificator ${OpenCV_LIBS} ${IE_SHARED_LIBS}  "stdc++fs")
+ADD_EXECUTABLE(NCSRecognition ${SOURCES})
+TARGET_LINK_LIBRARIES(NCSRecognition CPPClassificator ${OpenCV_LIBS} ${IE_SHARED_LIBS}  "stdc++fs")
 
-# MAKE C WRAPPER
-SET(SOURCES lib/c/cwrapper.cpp)
-ADD_LIBRARY(CClassificator SHARED ${SOURCES})
-TARGET_LINK_LIBRARIES(CClassificator CPPClassificator ${OpenCV_LIBS} ${IE_SHARED_LIBS})
-
-# MAKE C EXAMPLE
-SET(SOURCES example/c_example.cpp)
-ADD_EXECUTABLE(CExample ${SOURCES})
-TARGET_LINK_LIBRARIES(CExample CClassificator ${OpenCV_LIBS} ${IE_SHARED_LIBS} "stdc++fs")
-
-INSTALL (TARGETS CPPClassificator CClassificator CExample CPPExample
+INSTALL (TARGETS CPPClassificator NCSRecognition
     DESTINATION ${PROJECT_SOURCE_DIR}/install/bin)
 INSTALL (DIRECTORY ${PROJECT_SOURCE_DIR}/include
     DESTINATION ${PROJECT_SOURCE_DIR}/install)

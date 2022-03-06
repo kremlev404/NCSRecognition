@@ -17,24 +17,36 @@ FaceDetector::FaceDetector(cv::String _modelPath, cv::String _configPath,
 	mean(mean),
 	swapRB(swapRB)
 {
+	std::cout << cv::dnn::getInferenceEngineVPUType();
 	backEnd = cv::dnn::DNN_BACKEND_INFERENCE_ENGINE;
     target = cv::dnn::DNN_TARGET_MYRIAD;
-	net.setPreferableBackend(backEnd);
-	net.setPreferableTarget(target);
-	net = cv::dnn::readNet(modelPath, configPath);
+
+	net.setPreferableBackend(cv::dnn::DNN_BACKEND_INFERENCE_ENGINE);
+	net.setPreferableTarget(cv::dnn::DNN_TARGET_MYRIAD);
+	
+	net = cv::dnn::readNetFromModelOptimizer(modelPath, configPath);
 }
 
 
 std::vector<cv::Rect> FaceDetector::detect(cv::Mat image) {
 
 	std::vector<cv::Rect> detected_objects;
-
+	
 	cv::Mat resized_frame;
 	cv::resize(image, resized_frame, netSize);
+	std::cout <<"tut";
+
+	std::cout << cv::dnn::getInferenceEngineVPUType();
+	//cv::dnn::setInferenceEngineBackendType(CV_DNN_INFERENCE_ENGINE_VPU_TYPE_MYRIAD_X);
 	cv::Mat inputBlob = cv::dnn::blobFromImage(resized_frame, scale, netSize, mean, swapRB);
+	std::cout <<"tut";
 
 	net.setInput(inputBlob);
+		std::cout <<"tut1";
+
 	cv::Mat outBlob = net.forward();
+		std::cout <<"tut2";
+
 	cv::Mat detection_as_mat(outBlob.size[2], outBlob.size[3], CV_32F, outBlob.ptr<float>());
 
 

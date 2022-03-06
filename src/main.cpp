@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
 
 	VideoAssistant assistant = VideoAssistant(video_path, images, face_detector, landmarks_detector, recognizer);
 	
-	assistant.saveFragments(out_path);
+	//assistant.saveFragments(out_path);
 
 	return 0;
 }

@@ -6,16 +6,21 @@ VideoAssistant::VideoAssistant(cv::String videoPath, std::vector<cv::Mat>& perso
 	FaceDetector& fdetector, LandmarkDetector& ldetector, FaceRecognizer& recognizer, int frames_skip, float max_interrupt) : 
 	videoPath(videoPath), fdetector(fdetector), ldetector(ldetector), recognizer(recognizer), frames_skip(frames_skip), max_interrupt(max_interrupt) {
 	if (frames_skip < 1) throw "frames_skip variable must be greater than 1 or equal 1";
+	std::cout << "do suda1\n"; 
 	for (cv::Mat& image : person_images) {
 		std::vector<cv::Rect> face_arr = fdetector.detect(image);
+		std::cout << "do suda2\n"; 
 		if (face_arr.size() != 1) {
 			throw "Can't definitely recognize a person (The image must contain strictly one face.)";
 		}
 		cv::Rect face_rect = face_arr[0];
 		std::vector<float> face_landmarks = ldetector.detect(image(face_rect));
+		std::cout << "do suda3\n"; 
 		cv::Mat transformedFace = FaceAligner::align(image(face_rect), face_landmarks);
+		std::cout << "do suda4\n"; 
 		face_representations.push_back(recognizer.predict(transformedFace));
 	}
+	std::cout << "do suda\n"; 
 	cv::VideoCapture video(videoPath);
 	frame_size = cv::Size(video.get(cv::CAP_PROP_FRAME_WIDTH), video.get(cv::CAP_PROP_FRAME_HEIGHT));
 };
