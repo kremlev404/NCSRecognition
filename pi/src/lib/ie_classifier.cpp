@@ -1,9 +1,9 @@
 #include <string>
 #include <opencv2/imgproc/imgproc.hpp>
 
-#include "ie_facenet_v1.hpp"
+#include "ie_classifier.hpp"
 
-IEFacenet_V1::IEFacenet_V1(const std::string& xml, const std::string& bin, const std::string& device) {
+IEClassifier::IEClassifier(const std::string& xml, const std::string& bin, const std::string& device) {
     using namespace InferenceEngine; 
 
     Core ie;
@@ -21,7 +21,7 @@ IEFacenet_V1::IEFacenet_V1(const std::string& xml, const std::string& bin, const
     this->_output = this->_infer_request.GetBlob((*outputInfo.begin()).first);
 };
 
-FaceDescriptor IEFacenet_V1::embed(const cv::Mat& face) {
+FaceDescriptor IEClassifier::embed(const cv::Mat& face) {
     using namespace InferenceEngine;
 
     const cv::Size expectedImageSize = cv::Size(160, 160);
@@ -36,6 +36,7 @@ FaceDescriptor IEFacenet_V1::embed(const cv::Mat& face) {
     // Prepare data
     auto data =
         this->_input->buffer().as<float*>();
+
     size_t num_channels = this->_input->getTensorDesc().getDims()[1];
     size_t width = this->_input->getTensorDesc().getDims()[2];
     size_t height = this->_input->getTensorDesc().getDims()[3];
@@ -66,7 +67,7 @@ FaceDescriptor IEFacenet_V1::embed(const cv::Mat& face) {
     return std::move(result);
 };
 
-float IEFacenet_V1::distance(const FaceDescriptor& desc1, const FaceDescriptor& desc2) {
+float IEClassifier::distance(const FaceDescriptor& desc1, const FaceDescriptor& desc2) {
     if (desc1.size() != desc2.size()) {
         throw std::invalid_argument("Both vectors must have the same size");
     }
@@ -87,7 +88,7 @@ float IEFacenet_V1::distance(const FaceDescriptor& desc1, const FaceDescriptor& 
     return std::acos(similarity);
 };
 
-IEFacenet_V1::~IEFacenet_V1() {
+IEClassifier::~IEClassifier() {
     // Reset executable network before plugin
     // There is segmentation fault if plugin had released before
     this->_executable.reset(nullptr);

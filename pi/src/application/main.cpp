@@ -8,7 +8,7 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/videoio/videoio.hpp>
 
-#include "classifier_factory.hpp"
+#include "classifier.hpp"
 
 static const cv::String keys =
         "{user_name      |kremlev| name of system user        }"
@@ -43,16 +43,16 @@ int main(int argc, char *argv[]) {
     std::string xml, bin, detector, db;
 
     if (parser.get<bool>("args_include") == true) {
+        xml = parser.get<std::string>("xml");
+        bin = parser.get<std::string>("bin");
+        detector = parser.get<std::string>("detector");
+        db = parser.get<std::string>("db");
+    } else {
         xml = bin = detector = db = home_dir;
         xml += "/study/data/face-reidentification-retail-0095.xml";
         bin += "/study/data/face-reidentification-retail-0095.bin";
         detector += "/study/data/haarcascade_frontalcatface.xml";
         db += "/study/data/db/";
-    } else {
-        xml = parser.get<std::string>("xml");
-        bin = parser.get<std::string>("bin");
-        detector = parser.get<std::string>("detector");
-        db = parser.get<std::string>("db");
     }
 
     const std::string device = parser.get<std::string>("device");
@@ -165,7 +165,7 @@ int main(int argc, char *argv[]) {
             }
 
             // Approximate threshold
-            if (minDistance > 1) {
+            if (minDistance > 0.5) {
                 cv::putText(image, "unknown", cv::Point(face.tl()),
                             cv::FONT_HERSHEY_COMPLEX_SMALL, 1.5, cv::Scalar(0, 0, 255));
             } else {
