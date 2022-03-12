@@ -4,12 +4,13 @@
 #include "ie_classifier.hpp"
 
 IEClassifier::IEClassifier(const std::string& xml, const std::string& bin, const std::string& device) {
-    using namespace InferenceEngine; 
-
+    using namespace InferenceEngine;
+    std::cout << "IEClassifier Constructor\n";
     Core ie;
     // Reading a network
     this->_network = ie.ReadNetwork(xml, bin);
     this->_network.setBatchSize(1);
+    std::cout << "IEClassifier Network readed\n";
 
     // Get information about topology
     InputsDataMap inputInfo(this->_network.getInputsInfo());

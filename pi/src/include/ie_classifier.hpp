@@ -3,7 +3,7 @@
 #include "classifier.hpp"
 #include "ie.hpp"
 
-class IEClassifier: public Classifier, public IE {
+class IEClassifier: public Classifier, private IE {
 public:
     IEClassifier(const std::string& xml, const std::string& bin, const std::string& device);
     float distance(const FaceDescriptor& desc1, const FaceDescriptor& desc2) override;

@@ -9,6 +9,7 @@
 #include <opencv2/videoio/videoio.hpp>
 
 #include "classifier.hpp"
+#include "face_detector.hpp"
 
 static const cv::String keys =
         "{user_name      |kremlev| name of system user        }"
@@ -24,38 +25,60 @@ static const cv::String keys =
         "{gui            |true| show gui                       }"
         "{help           |false| show gui                       }";
 
+enum DetectorType
+{
+    face_detection_retail_0004,
+    haar_cascade
+};
 
 int main(int argc, char *argv[]) {
     cv::CommandLineParser parser(argc, argv, keys);
-
+    auto detector_type = DetectorType::face_detection_retail_0004;
     if (!parser.check()) {
         parser.printErrors();
         throw "Parse error";
         return 0;
     }
 
-    if (parser.get<bool>("help") == true) {
+    if (parser.get<bool>("help")) {
         std::cout << keys;
         return 0;
     }
 
     std::string home_dir = "/home/" + parser.get<std::string>("user_name");
-    std::string xml, bin, detector, db;
+    std::string recognition_xml, recognition_bin, detector_xml, detector_bin, db;
 
-    if (parser.get<bool>("args_include") == true) {
-        xml = parser.get<std::string>("xml");
-        bin = parser.get<std::string>("bin");
-        detector = parser.get<std::string>("detector");
+    if (parser.get<bool>("args_include")) {
+        recognition_xml = parser.get<std::string>("recognition_xml");
+        recognition_bin = parser.get<std::string>("recognition_bin");
+        detector_xml = parser.get<std::string>("detector_xml");
         db = parser.get<std::string>("db");
     } else {
-        xml = bin = detector = db = home_dir;
-        xml += "/study/data/face-reidentification-retail-0095.xml";
-        bin += "/study/data/face-reidentification-retail-0095.bin";
-        detector += "/study/data/haarcascade_frontalcatface.xml";
+        recognition_xml = recognition_bin = detector_xml = detector_bin = db = home_dir;
+        recognition_xml += "/study/data/face-reidentification-retail-0095.xml";
+        recognition_bin += "/study/data/face-reidentification-retail-0095.bin";
+        // Find faces
+        switch(detector_type)
+        {
+            case DetectorType::face_detection_retail_0004:
+            {
+                detector_xml += "/study/data/face-detection-adas-0001/FP16/face-detection-adas-0001.xml";
+                detector_bin += "/study/data/face-detection-adas-0001/FP16/face-detection-adas-0001.bin";
+                break;
+            }
+            case DetectorType::haar_cascade:
+            {
+                detector_xml += "/study/data/haarcascade_frontalcatface.xml";
+                break;
+            }
+            default: {
+                return -1;
+            }
+        }
         db += "/study/data/db/";
     }
 
-    const std::string device = parser.get<std::string>("device");
+    const auto device = parser.get<std::string>("device");
     const bool gui = parser.get<bool>("gui");
     const bool flip = parser.get<bool>("flip");
     const int width = parser.get<int>("width");
@@ -67,23 +90,26 @@ int main(int argc, char *argv[]) {
     }
 
     std::cout << "Device: " << device << std::endl;
-    std::cout << "XML: " << xml << std::endl;
-    std::cout << "BIN: " << bin << std::endl;
-    std::cout << "Face detector: " << detector << std::endl;
+    std::cout << "XML: " << recognition_xml << std::endl;
+    std::cout << "BIN: " << recognition_bin << std::endl;
+    std::cout << "Face detector_xml: " << detector_xml << std::endl;
     std::cout << "People: " << db << std::endl;
     std::cout << "Resolution: " << width << "x" << height << std::endl;
     std::cout << "gui: " << gui << std::endl;
+    std::cout << "gui: " << gui << std::endl;
 
-    if (gui == true) {
+    if (gui) {
         cv::namedWindow("NCSRecognition");
     }
 
-    // Load face detector
-    cv::CascadeClassifier cascade;
-    cascade.load(detector);
+    // Load face detector_xml
+    //cv::CascadeClassifier cascade;
+    //cascade.load(detector_xml);
 
     const std::shared_ptr<Classifier> classifier = build_classifier(
-            ClassifierType::IE_Facenet_V1, xml, bin, device);
+            ClassifierType::IE_Facenet_V1, recognition_xml, recognition_bin, device);
+
+    auto vino_detector = std::make_unique<FaceDetector>(detector_xml, detector_bin);
 
     std::vector<cv::Rect> faces;
 
@@ -96,11 +122,27 @@ int main(int argc, char *argv[]) {
     std::map<std::string, std::vector<float>> people;
     for (const auto &entry: std::filesystem::directory_iterator(db.c_str())) {
         // Get person image
+
         image = cv::imread(entry.path(), cv::IMREAD_COLOR);
 
         // Find faces
-        cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
-        cascade.detectMultiScale(gray, faces, 1.5, 5, 0, cv::Size(150, 150));
+        switch(detector_type)
+        {
+            case DetectorType::face_detection_retail_0004:
+            {
+                faces = vino_detector->detect(image);
+                break;
+            }
+            case DetectorType::haar_cascade:
+            {
+                cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
+                //cascade.detectMultiScale(gray, faces, 1.5, 5, 0, cv::Size(150, 150));
+                break;
+            }
+            default: {
+                return -1;
+            }
+        }
 
         // There must be one face per image
         face_image = image(faces[0]);
@@ -128,10 +170,10 @@ int main(int argc, char *argv[]) {
         if (flip) {
             cv::flip(image, image, 0);
         }
-
+        std::cout <<"Da";
         cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
-        cascade.detectMultiScale(gray, faces, 1.5, 5, 0, cv::Size(150, 150));
-
+        //cascade.detectMultiScale(gray, faces, 1.5, 5, 0, cv::Size(150, 150));
+        faces = vino_detector->detect(image);
         for (cv::Rect &face: faces) {
             bool ignore = false;
             for (cv::Rect &another_face: faces) {
@@ -174,7 +216,7 @@ int main(int argc, char *argv[]) {
                 cv::putText(image, text, cv::Point(face.tl()),
                             cv::FONT_HERSHEY_COMPLEX_SMALL, 1.5, cv::Scalar(0, 0, 255));
 
-                if (gui != true) {
+                if (!gui) {
                     std::cout << "Found -> " << text << std::endl;
                 }
             }
@@ -189,7 +231,7 @@ int main(int argc, char *argv[]) {
                     cv::FONT_HERSHEY_COMPLEX_SMALL, 2.0, cv::Scalar(0, 255, 255)
         );
 
-        if (gui == true) {
+        if (gui) {
             imshow("NCSRecognition", image);
             const int waitKey = cv::waitKey(20);
             if (waitKey == 27) {
@@ -197,6 +239,5 @@ int main(int argc, char *argv[]) {
             }
         }
     }
-
     capture.release();
 }
