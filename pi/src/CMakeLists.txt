@@ -10,7 +10,7 @@ link_directories("${IE_DIR}/lib/intel64")
 set(IE_SHARED_LIBS libinference_engine.so)
 
 # MAKE LIBRARY
-set(SOURCES lib/classifier_factory.cpp lib/ie_classifier.cpp lib/face_detector.cpp ../include/ie.hpp)
+set(SOURCES lib/classifier_factory.cpp lib/ie_classifier.cpp lib/face_detectorDNN.cpp ../include/ie.hpp include/face_detector.hpp lib/face_detector.cpp)
 add_library(CPPClassificator SHARED ${SOURCES})
 target_link_libraries(CPPClassificator ${OpenCV_LIBS} ${IE_SHARED_LIBS})
 

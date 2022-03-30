@@ -9,6 +9,7 @@
 #include <opencv2/videoio/videoio.hpp>
 
 #include "classifier.hpp"
+#include "face_detectorDNN.hpp"
 #include "face_detector.hpp"
 
 static const cv::String keys =
@@ -109,7 +110,7 @@ int main(int argc, char *argv[]) {
     const std::shared_ptr<Classifier> classifier = build_classifier(
             ClassifierType::IE_Facenet_V1, recognition_xml, recognition_bin, device);
 
-    auto vino_detector = std::make_unique<FaceDetector>(detector_xml, detector_bin);
+    auto vino_detector = std::make_unique<FaceDetectorDNN>(detector_xml, detector_bin);
 
     std::vector<cv::Rect> faces;
 
@@ -170,7 +171,6 @@ int main(int argc, char *argv[]) {
         if (flip) {
             cv::flip(image, image, 0);
         }
-        std::cout <<"Da";
         cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
         //cascade.detectMultiScale(gray, faces, 1.5, 5, 0, cv::Size(150, 150));
         faces = vino_detector->detect(image);
