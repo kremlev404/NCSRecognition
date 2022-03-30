@@ -107,7 +107,7 @@ int main(int argc, char *argv[]) {
 
     //const std::shared_ptr<Classifier> classifier = build_classifier(
     //            ClassifierType::IE_Facenet_V1, recognition_xml, recognition_bin, device);
-    auto vino_detector = std::make_unique<FaceDetectorDNN>(detector_xml, detector_bin, detector_type);
+    auto vino_detector = build_detector(detector_type, detector_xml, detector_bin);
 
     std::vector<cv::Rect> faces;
 
