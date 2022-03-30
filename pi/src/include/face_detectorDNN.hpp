@@ -46,7 +46,10 @@ private:
     bool swapRB;
     double scale;
     float confidence_threshold;
-    cv::dnn::Net net = cv::dnn::Net();
+    //cv::dnn::Net net;
+    int backEnd;
+    int target;
+    cv::dnn::Net getNet();
 public:
     FaceDetectorDNN(cv::String modelPath, cv::String configPath,
                  float confidence_threshold = 0.7,

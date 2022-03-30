@@ -13,7 +13,7 @@
 #include "face_detector.hpp"
 
 static const cv::String keys =
-        "{user_name      |kremlev| name of system user        }"
+        "{user_name      |pi| name of system user        }"
         "{args_include   |false| use custom config               }"
         "{device         |MYRIAD| backend device (CPU, MYRIAD)}"
         "{xml            |<none>| path to model definition    }"
@@ -107,10 +107,11 @@ int main(int argc, char *argv[]) {
     //cv::CascadeClassifier cascade;
     //cascade.load(detector_xml);
 
-    const std::shared_ptr<Classifier> classifier = build_classifier(
-            ClassifierType::IE_Facenet_V1, recognition_xml, recognition_bin, device);
-
+    
+    //const std::shared_ptr<Classifier> classifier = build_classifier(
+    //            ClassifierType::IE_Facenet_V1, recognition_xml, recognition_bin, device);
     auto vino_detector = std::make_unique<FaceDetectorDNN>(detector_xml, detector_bin);
+    
 
     std::vector<cv::Rect> faces;
 
@@ -123,7 +124,7 @@ int main(int argc, char *argv[]) {
     std::map<std::string, std::vector<float>> people;
     for (const auto &entry: std::filesystem::directory_iterator(db.c_str())) {
         // Get person image
-
+        std::cout << entry.path() << std::endl;
         image = cv::imread(entry.path(), cv::IMREAD_COLOR);
 
         // Find faces
@@ -151,7 +152,7 @@ int main(int argc, char *argv[]) {
         // Get and save embedding for a face
         // The library expects BGR image
         cv::resize(face_image, face_image, cv::Size(160, 160));
-        std::vector<float> reference = classifier->embed(face_image);
+        std::vector<float> reference;// = classifier->embed(face_image);
         std::cout << entry.path() << std::endl;
         for (float &number: reference) {
             std::cout << number << ",";
@@ -192,14 +193,14 @@ int main(int argc, char *argv[]) {
 
             // Get embedding
             cv::resize(face_image, face_image, cv::Size(160, 160));
-            std::vector<float> result = classifier->embed(face_image);
+            std::vector<float> result;// = classifier->embed(face_image);
             cv::rectangle(image, face, cv::Scalar(255, 0, 255));
 
             // Find it's across saved people
             float minDistance = 100;
             std::string minKey;
             for (const std::pair<std::string, std::vector<float>> &pair: people) {
-                float distance = classifier->distance(pair.second, result);
+                float distance =1;// classifier->distance(pair.second, result);
                 if (distance < minDistance) {
                     minDistance = distance;
                     minKey = pair.first;

@@ -12,6 +12,8 @@ FaceDetectorDNN::FaceDetectorDNN(cv::String _modelPath, cv::String _configPath,
                            int backEnd,
                            int target)
         :modelPath(std::move(_modelPath)),
+        backEnd(backEnd),
+        target(target),
          configPath(std::move(_configPath)),
          netSize(cv::Size(inputWidth, inputHeight)),
          confidence_threshold(confidence_threshold),
@@ -19,20 +21,39 @@ FaceDetectorDNN::FaceDetectorDNN(cv::String _modelPath, cv::String _configPath,
          mean(std::move(mean)),
          swapRB(swapRB)
 {
-    std::cout << "FaceDetectorDNN Constructor\n" << std::endl;
+    std::cout << "FaceDetectorDNN Constructor Called\n" << std::endl;
 
-    //std::cout << cv::dnn::getInferenceEngineVPUType();
-    cv::Mat a;
-    a.dims =4;
-    net.setPreferableBackend(backEnd);
-    net.setPreferableTarget(target);
-    net = cv::dnn::readNet(modelPath, configPath);
-    std::cout << cv::dnn::getInferenceEngineBackendType() << cv::dnn::getInferenceEngineCPUType()<< std::endl;
-    std::cout << "FaceDetectorDNN Created\n" << std::endl;
 }
 
+cv::dnn::Net FaceDetectorDNN::getNet() {
+    static auto net = cv::dnn::Net::readFromModelOptimizer(modelPath, configPath);
+    static auto isSetted  = false;
+    if(!isSetted) {
+    net.setPreferableBackend(backEnd);
+    net.setPreferableTarget(target);
+    std::cout << "InferenceEngineBackendType: " <<cv::dnn::getInferenceEngineBackendType() <<" CPU TYPE: "<< cv::dnn::getInferenceEngineCPUType()<< std::endl;
+    std::vector ve = cv::dnn::getAvailableBackends();
+    auto[back, pref] = ve[0];
+    auto it = ve.begin();
+    while (it != ve.end()) {
+        std::cout<< " it Back: " <<  it->first <<  "Target:" <<  it->second <<  " " <<  std::endl;
+        auto tg = cv::dnn::getAvailableTargets(it->first);
+        auto targetIt = tg.begin();
+        while (targetIt != tg.end()) {
+            std::cout <<  "targetIt (0) is CPU, (3) is NCS:" <<  *targetIt <<  std::endl;
+            targetIt++;
+        }
+        it++;
+    }
+    isSetted = true;
+}
+    return net;
+}
 
 std::vector<cv::Rect> FaceDetectorDNN::detect(const cv::Mat& image) {
+    //cv::dnn::resetMyriadDevice();
+    auto net = getNet();
+    
     std::cout << "FaceDetectorDNN detect\n" << std::endl;
 
     std::vector<cv::Rect> detected_objects;
