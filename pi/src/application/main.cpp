@@ -9,6 +9,7 @@
 #include <opencv2/videoio/videoio.hpp>
 
 #include "classifier.hpp"
+#include "detector.hpp"
 #include "face_detectorDNN.hpp"
 #include "face_detector.hpp"
 
@@ -26,15 +27,9 @@ static const cv::String keys =
         "{gui            |true| show gui                       }"
         "{help           |false| show gui                       }";
 
-enum DetectorType
-{
-    face_detection_retail_0004,
-    haar_cascade
-};
-
 int main(int argc, char *argv[]) {
     cv::CommandLineParser parser(argc, argv, keys);
-    auto detector_type = DetectorType::face_detection_retail_0004;
+    auto detector_type = DetectorType::face_detection_retail_0001;
     if (!parser.check()) {
         parser.printErrors();
         throw "Parse error";
@@ -59,16 +54,18 @@ int main(int argc, char *argv[]) {
         recognition_xml += "/study/data/face-reidentification-retail-0095.xml";
         recognition_bin += "/study/data/face-reidentification-retail-0095.bin";
         // Find faces
-        switch(detector_type)
-        {
-            case DetectorType::face_detection_retail_0004:
-            {
+        switch (detector_type) {
+            case DetectorType::face_detection_retail_0004: {
+                detector_xml += "/study/data/face-detection-adas-0004/FP16/face-detection-adas-0004.xml";
+                detector_bin += "/study/data/face-detection-adas-0004/FP16/face-detection-adas-0004.bin";
+                break;
+            }
+            case DetectorType::face_detection_retail_0001: {
                 detector_xml += "/study/data/face-detection-adas-0001/FP16/face-detection-adas-0001.xml";
                 detector_bin += "/study/data/face-detection-adas-0001/FP16/face-detection-adas-0001.bin";
                 break;
             }
-            case DetectorType::haar_cascade:
-            {
+            case DetectorType::haar_cascade: {
                 detector_xml += "/study/data/haarcascade_frontalcatface.xml";
                 break;
             }
@@ -104,14 +101,13 @@ int main(int argc, char *argv[]) {
     }
 
     // Load face detector_xml
-    //cv::CascadeClassifier cascade;
-    //cascade.load(detector_xml);
+    // cv::CascadeClassifier cascade;
+    // cascade.load(detector_xml);
 
-    
+
     //const std::shared_ptr<Classifier> classifier = build_classifier(
     //            ClassifierType::IE_Facenet_V1, recognition_xml, recognition_bin, device);
-    auto vino_detector = std::make_unique<FaceDetectorDNN>(detector_xml, detector_bin);
-    
+    auto vino_detector = std::make_unique<FaceDetectorDNN>(detector_xml, detector_bin, detector_type);
 
     std::vector<cv::Rect> faces;
 
@@ -128,15 +124,12 @@ int main(int argc, char *argv[]) {
         image = cv::imread(entry.path(), cv::IMREAD_COLOR);
 
         // Find faces
-        switch(detector_type)
-        {
-            case DetectorType::face_detection_retail_0004:
-            {
+        switch (detector_type) {
+            case DetectorType::face_detection_retail_0004 || DetectorType::face_detection_retail_0001: {
                 faces = vino_detector->detect(image);
                 break;
             }
-            case DetectorType::haar_cascade:
-            {
+            case DetectorType::haar_cascade: {
                 cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
                 //cascade.detectMultiScale(gray, faces, 1.5, 5, 0, cv::Size(150, 150));
                 break;
@@ -200,7 +193,7 @@ int main(int argc, char *argv[]) {
             float minDistance = 100;
             std::string minKey;
             for (const std::pair<std::string, std::vector<float>> &pair: people) {
-                float distance =1;// classifier->distance(pair.second, result);
+                float distance = 1;// classifier->distance(pair.second, result);
                 if (distance < minDistance) {
                     minDistance = distance;
                     minKey = pair.first;
