@@ -29,7 +29,7 @@ static const cv::String keys =
 
 int main(int argc, char *argv[]) {
     cv::CommandLineParser parser(argc, argv, keys);
-    auto detector_type = DetectorType::face_detection_retail_0001;
+    auto detector_type = DetectorType::face_detection_retail_0004;
     if (!parser.check()) {
         parser.printErrors();
         throw "Parse error";
@@ -56,8 +56,8 @@ int main(int argc, char *argv[]) {
         // Find faces
         switch (detector_type) {
             case DetectorType::face_detection_retail_0004: {
-                detector_xml += "/study/data/face-detection-adas-0004/FP16/face-detection-adas-0004.xml";
-                detector_bin += "/study/data/face-detection-adas-0004/FP16/face-detection-adas-0004.bin";
+                detector_xml += "/study/data/face-detection-retail-0004/FP16/face-detection-retail-0004.xml";
+                detector_bin += "/study/data/face-detection-retail-0004/FP16/face-detection-retail-0004.bin";
                 break;
             }
             case DetectorType::face_detection_retail_0001: {
@@ -94,7 +94,6 @@ int main(int argc, char *argv[]) {
     std::cout << "People: " << db << std::endl;
     std::cout << "Resolution: " << width << "x" << height << std::endl;
     std::cout << "gui: " << gui << std::endl;
-    std::cout << "gui: " << gui << std::endl;
 
     if (gui) {
         cv::namedWindow("NCSRecognition");
@@ -107,7 +106,7 @@ int main(int argc, char *argv[]) {
 
     //const std::shared_ptr<Classifier> classifier = build_classifier(
     //            ClassifierType::IE_Facenet_V1, recognition_xml, recognition_bin, device);
-    auto vino_detector = build_detector(detector_type, detector_xml, detector_bin);
+    auto vino_detector = std::make_shared<FaceDetectorDNN>(detector_xml, detector_bin, 0.5, 300, 300);//build_detector(detector_type, detector_xml, detector_bin);
 
     std::vector<cv::Rect> faces;
 
@@ -125,7 +124,11 @@ int main(int argc, char *argv[]) {
 
         // Find faces
         switch (detector_type) {
-            case DetectorType::face_detection_retail_0004 || DetectorType::face_detection_retail_0001: {
+            case DetectorType::face_detection_retail_0004: {
+                faces = vino_detector->detect(image);
+                break;
+            }
+            case DetectorType::face_detection_retail_0001: {
                 faces = vino_detector->detect(image);
                 break;
             }
@@ -153,6 +156,7 @@ int main(int argc, char *argv[]) {
 
         std::cout << std::endl;
         people.insert(std::pair<std::string, std::vector<float>>(entry.path().filename(), reference));
+        std::cout << "DB of People Scanned" << std::endl;
     }
 
     // Now run webcam stream
@@ -161,14 +165,18 @@ int main(int argc, char *argv[]) {
                 std::chrono::high_resolution_clock::now();
 
         // Get frame and detect faces
+        std::cout << "DB of People Scanned1" << std::endl;
         capture >> image;
+        std::cout << "DB of People Scanned2" << std::endl;
         if (flip) {
             cv::flip(image, image, 0);
         }
         cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
         //cascade.detectMultiScale(gray, faces, 1.5, 5, 0, cv::Size(150, 150));
+        std::cout << "DB of People Scanned3" << std::endl;
         faces = vino_detector->detect(image);
         for (cv::Rect &face: faces) {
+            std::cout << "DB of People Scanned4" << std::endl;
             bool ignore = false;
             for (cv::Rect &another_face: faces) {
                 if (face.x > another_face.x && face.y > another_face.y
@@ -177,18 +185,18 @@ int main(int argc, char *argv[]) {
                     ignore = true;
                 }
             }
-
+std::cout << "DB of People Scanned5" << std::endl;
             if (ignore) {
                 continue;
             }
             // Get ROI
             face_image = image(face);
-
+std::cout << "DB of People Scanned6" << std::endl;
             // Get embedding
             cv::resize(face_image, face_image, cv::Size(160, 160));
             std::vector<float> result;// = classifier->embed(face_image);
             cv::rectangle(image, face, cv::Scalar(255, 0, 255));
-
+std::cout << "DB of People Scanned7" << std::endl;
             // Find it's across saved people
             float minDistance = 100;
             std::string minKey;

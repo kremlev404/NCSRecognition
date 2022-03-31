@@ -52,12 +52,12 @@ private:
     cv::dnn::Net getNet();
 public:
     FaceDetectorDNN(cv::String modelPath, cv::String configPath,
-                 float confidence_threshold = 0.7,
-                 int inputWidth = 384,
-                 int inputHeight = 672 ,
+                 float confidence_threshold,
+                 int inputWidth,
+                 int inputHeight,
                  double scale = 1.0,
                  cv::Scalar mean = cv::Scalar(0, 0, 0, 0),
-                 bool swapRB= false,
+                 bool swapRB = false,
                  int backEnd = cv::dnn::DNN_BACKEND_INFERENCE_ENGINE,
                  int target = cv::dnn::DNN_TARGET_MYRIAD);
     std::vector<cv::Rect> detect(const cv::Mat& image);
