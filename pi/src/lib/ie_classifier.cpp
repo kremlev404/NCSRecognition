@@ -68,8 +68,10 @@ FaceDescriptor IEClassifier::embed(const cv::Mat& face) {
     return std::move(result);
 };
 
-float IEClassifier::distance(const FaceDescriptor& desc1, const FaceDescriptor& desc2) {
-    if (desc1.size() != desc2.size()) {
+float IEClassifier::compareDescriptors(std::vector<float> &initial_person, std::vector<float> &compare_person,
+                                       float confidence_threshold ,
+                                       float votes_threshold)  {
+/*    if (desc1.size() != desc2.size()) {
         throw std::invalid_argument("Both vectors must have the same size");
     }
 
@@ -86,7 +88,8 @@ float IEClassifier::distance(const FaceDescriptor& desc1, const FaceDescriptor& 
 
     float similarity = dot / (std::sqrt(norm1) * std::sqrt(norm2));
 
-    return std::acos(similarity);
+    return std::acos(similarity);*/
+    return 0.1;
 };
 
 IEClassifier::~IEClassifier() {

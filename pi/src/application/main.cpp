@@ -29,7 +29,8 @@ static const cv::String keys =
 
 int main(int argc, char *argv[]) {
     cv::CommandLineParser parser(argc, argv, keys);
-    auto detector_type = DetectorType::face_detection_retail_0001;
+    auto detector_type = DetectorType::face_detection_retail_0004;
+    auto classifier_type = ClassifierType::face_reidentification_retail_0095;
     if (!parser.check()) {
         parser.printErrors();
         throw "Parse error";
@@ -105,9 +106,8 @@ int main(int argc, char *argv[]) {
     // cv::CascadeClassifier cascade;
     // cascade.load(detector_xml);
 
-
-    //const std::shared_ptr<Classifier> classifier = build_classifier(
-    //            ClassifierType::IE_Facenet_V1, recognition_xml, recognition_bin, device);
+    const std::shared_ptr<Classifier> classifier = build_classifier(classifier_type, recognition_xml, recognition_bin,
+                                                                    device);
     auto vino_detector = build_detector(detector_type, detector_xml, detector_bin);
 
     std::vector<cv::Rect> faces;
@@ -150,7 +150,7 @@ int main(int argc, char *argv[]) {
         // Get and save embedding for a face
         // The library expects BGR image
         cv::resize(face_image, face_image, cv::Size(160, 160));
-        std::vector<float> reference;// = classifier->embed(face_image);
+        std::vector<float> reference = classifier->embed(face_image);
         std::cout << entry.path() << std::endl;
         for (float &number: reference) {
             std::cout << number << ",";
@@ -191,26 +191,27 @@ int main(int argc, char *argv[]) {
             face_image = image(face);
             // Get embedding
             cv::resize(face_image, face_image, cv::Size(160, 160));
-            std::vector<float> result;// = classifier->embed(face_image);
+            std::vector<float> result = classifier->embed(face_image);
             cv::rectangle(image, face, cv::Scalar(255, 0, 255));
             // Find it's across saved people
-            float minDistance = 100;
+            float maxDistance = -1;
             std::string minKey;
-            for (const std::pair<std::string, std::vector<float>> &pair: people) {
-                float distance = 1;// classifier->distance(pair.second, result);
-                if (distance < minDistance) {
-                    minDistance = distance;
+            for (std::pair<std::string, std::vector<float>> pair: people) {
+                float distance = classifier->compareDescriptors(pair.second, result);
+                //std::cout << "[MAIN] Distance: " << distance << std::endl;
+                if (distance > maxDistance) {
+                    maxDistance = distance;
                     minKey = pair.first;
                 }
             }
 
             // Approximate threshold
-            if (minDistance > 0.5) {
+            if (maxDistance < 0.5) {
                 cv::putText(image, "unknown", cv::Point(face.tl()),
                             cv::FONT_HERSHEY_COMPLEX_SMALL, 1.5, cv::Scalar(0, 0, 255));
             } else {
                 std::string text =
-                        minKey + std::string(": ") + std::to_string(minDistance);
+                        minKey + std::string(": ") + std::to_string(maxDistance);
                 cv::putText(image, text, cv::Point(face.tl()),
                             cv::FONT_HERSHEY_COMPLEX_SMALL, 1.5, cv::Scalar(0, 0, 255));
 
@@ -233,11 +234,12 @@ int main(int argc, char *argv[]) {
             cv::imshow("NCSRecognition", image);
             auto a = cv::waitKey(1);
             if (cv::getWindowImageRect("NCSRecognition").x == -1) {
+                std::cout << "X was pressed";
                 need_to_play = false;
             }
         }
     }
-    
+
     capture.release();
     cv::destroyAllWindows();
 }

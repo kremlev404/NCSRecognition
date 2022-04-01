@@ -30,17 +30,17 @@ cv::dnn::Net FaceDetectorDNN::getNet() {
     if (!isSetted) {
         net.setPreferableBackend(backEnd);
         net.setPreferableTarget(target);
-       // std::cout << "InferenceEngineBackendType: " << cv::dnn::getInferenceEngineBackendType() << " CPU TYPE: "
+        // std::cout << "InferenceEngineBackendType: " << cv::dnn::getInferenceEngineBackendType() << " CPU TYPE: "
         //          << cv::dnn::getInferenceEngineCPUType() << std::endl;
         std::vector ve = cv::dnn::getAvailableBackends();
         auto[back, pref] = ve[0];
         auto it = ve.begin();
         while (it != ve.end()) {
-            std::cout << " it Back: " << it->first << "Target:" << it->second << " " << std::endl;
+            std::cout << "FaceDetectorDNN Available Back: " << it->first << "Target: " << it->second << " " << std::endl;
             auto tg = cv::dnn::getAvailableTargets(it->first);
             auto targetIt = tg.begin();
             while (targetIt != tg.end()) {
-                std::cout << "targetIt (0) is CPU, (3) is NCS:" << *targetIt << std::endl;
+                std::cout << "FaceDetectorDNN targetIt (0) is CPU, (3) is NCS:" << *targetIt << std::endl;
                 targetIt++;
             }
             it++;

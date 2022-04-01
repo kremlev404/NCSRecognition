@@ -8,6 +8,7 @@
 // Supported classifications list
 enum ClassifierType {
     IE_Facenet_V1,
+    face_reidentification_retail_0095
 };
 
 typedef std::vector<float> FaceDescriptor;
@@ -15,7 +16,9 @@ typedef std::vector<float> FaceDescriptor;
 // Interface of a classification
 class Classifier {
 public:
-    virtual float distance(const FaceDescriptor &desc1, const FaceDescriptor &desc2) = 0;
+    virtual float compareDescriptors(std::vector<float> &initial_person, std::vector<float> &compare_person,
+                                    float confidence_threshold = 0.34,
+                                    float votes_threshold = 0.5) = 0;
 
     virtual FaceDescriptor embed(const cv::Mat &face) = 0;
 

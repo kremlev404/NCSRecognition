@@ -6,7 +6,9 @@
 class IEClassifier: public Classifier, private IE {
 public:
     IEClassifier(const std::string& xml, const std::string& bin, const std::string& device);
-    float distance(const FaceDescriptor& desc1, const FaceDescriptor& desc2) override;
+    float compareDescriptors(std::vector<float> &initial_person, std::vector<float> &compare_person,
+                            float confidence_threshold ,
+                            float votes_threshold ) override;
     FaceDescriptor embed(const cv::Mat& face) override;
     ~IEClassifier() override;
 };

@@ -1,10 +1,14 @@
 #include "ie_classifier.hpp"
+#include "face_recognizer.hpp"
 #include "detector.hpp"
 
 //Factory method
-std::shared_ptr<Classifier> build_classifier(ClassifierType type, const std::string &xml, const std::string &bin, const std::string &device) {
+std::shared_ptr<Classifier>
+build_classifier(ClassifierType type, const std::string &xml, const std::string &bin, const std::string &device) {
     if (type == ClassifierType::IE_Facenet_V1) {
         return std::make_shared<IEClassifier>(xml, bin, device);
+    } else if (type == ClassifierType::face_reidentification_retail_0095) {
+        return std::make_shared<FaceRecognizer>(xml, bin);
     } else {
         throw std::runtime_error("Unknown classifier type");
     }
