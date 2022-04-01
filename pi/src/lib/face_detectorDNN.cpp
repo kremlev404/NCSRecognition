@@ -20,32 +20,31 @@ FaceDetectorDNN::FaceDetectorDNN(cv::String _modelPath, cv::String _configPath,
           scale(scale),
           mean(std::move(mean)),
           swapRB(swapRB) {
-    std::cout << "FaceDetectorDNN Constructor Called\n" << std::endl;
-
 }
 
 cv::dnn::Net FaceDetectorDNN::getNet() {
     static auto net = cv::dnn::Net::readFromModelOptimizer(modelPath, configPath);
-    static auto isSetted = false;
-    if (!isSetted) {
+    static auto is_setted = false;
+    if (!is_setted) {
         net.setPreferableBackend(backEnd);
         net.setPreferableTarget(target);
-        // std::cout << "InferenceEngineBackendType: " << cv::dnn::getInferenceEngineBackendType() << " CPU TYPE: "
-        //          << cv::dnn::getInferenceEngineCPUType() << std::endl;
-        std::vector ve = cv::dnn::getAvailableBackends();
-        auto[back, pref] = ve[0];
-        auto it = ve.begin();
-        while (it != ve.end()) {
-            std::cout << "FaceDetectorDNN Available Back: " << it->first << "Target: " << it->second << " " << std::endl;
+        std::vector available_backends = cv::dnn::getAvailableBackends();
+        auto it = available_backends.begin();
+        bool target_founded = false;
+        while (it != available_backends.end()) {
             auto tg = cv::dnn::getAvailableTargets(it->first);
-            auto targetIt = tg.begin();
-            while (targetIt != tg.end()) {
-                std::cout << "FaceDetectorDNN targetIt (0) is CPU, (3) is NCS:" << *targetIt << std::endl;
-                targetIt++;
+            if (std::find(tg.begin(), tg.end(), cv::dnn::Target::DNN_TARGET_MYRIAD) != tg.end()) {
+                target_founded = true;
+                break;
             }
             it++;
         }
-        isSetted = true;
+        if (!target_founded) {
+            throw std::invalid_argument("FaceDetectorDNN didn't found target");
+        } else {
+            std::cout << "FaceDetectorDNN created\n";
+        }
+        is_setted = true;
     }
     return net;
 }

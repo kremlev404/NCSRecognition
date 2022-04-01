@@ -10,8 +10,8 @@
 
 #include "classifier.hpp"
 #include "detector.hpp"
-#include "face_detectorDNN.hpp"
-#include "face_detector.hpp"
+#include "face_aligner.hpp"
+#include "landmarks_detector.hpp"
 
 static const cv::String keys =
         "{user_name      |pi| name of system user        }"
@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
     auto classifier_type = ClassifierType::face_reidentification_retail_0095;
     if (!parser.check()) {
         parser.printErrors();
-        throw "Parse error";
+        throw std::invalid_argument("Parse error");
         return 0;
     }
 
@@ -43,7 +43,7 @@ int main(int argc, char *argv[]) {
     }
 
     std::string home_dir = "/home/" + parser.get<std::string>("user_name");
-    std::string recognition_xml, recognition_bin, detector_xml, detector_bin, db;
+    std::string recognition_xml, recognition_bin, detector_xml, detector_bin, landmark_xml, landmark_bin, db;
 
     if (parser.get<bool>("args_include")) {
         recognition_xml = parser.get<std::string>("recognition_xml");
@@ -51,9 +51,11 @@ int main(int argc, char *argv[]) {
         detector_xml = parser.get<std::string>("detector_xml");
         db = parser.get<std::string>("db");
     } else {
-        recognition_xml = recognition_bin = detector_xml = detector_bin = db = home_dir;
+        recognition_xml = recognition_bin = detector_xml = detector_bin = landmark_xml = landmark_bin = db = home_dir;
         recognition_xml += "/study/data/face-reidentification-retail-0095.xml";
         recognition_bin += "/study/data/face-reidentification-retail-0095.bin";
+        landmark_xml += "/study/data/landmarks-regression-retail-0009.xml";
+        landmark_bin += "/study/data/landmarks-regression-retail-0009.bin";
         // Find faces
         switch (detector_type) {
             case DetectorType::face_detection_retail_0004: {
@@ -86,7 +88,7 @@ int main(int argc, char *argv[]) {
 
     cv::VideoCapture capture(home_dir + "/study/data/video/me.mp4");
     if (!capture.isOpened()) {
-        throw new std::runtime_error("Couldn't open a video stream");
+        throw std::runtime_error("Couldn't open a video stream");
     }
 
     std::cout << "Device: " << device << std::endl;
@@ -109,6 +111,8 @@ int main(int argc, char *argv[]) {
     const std::shared_ptr<Classifier> classifier = build_classifier(classifier_type, recognition_xml, recognition_bin,
                                                                     device);
     auto vino_detector = build_detector(detector_type, detector_xml, detector_bin);
+    auto aligner = std::make_unique<FaceAligner>();
+    auto landmark_detector = std::make_unique<LandmarkDetector>(landmark_xml, landmark_bin);
 
     std::vector<cv::Rect> faces;
 
@@ -121,44 +125,34 @@ int main(int argc, char *argv[]) {
     std::map<std::string, std::vector<float>> people;
     for (const auto &entry: std::filesystem::directory_iterator(db.c_str())) {
         // Get person image
-        std::cout << entry.path() << std::endl;
+        std::cout << "User photo url: " << entry.path() << std::endl;
         image = cv::imread(entry.path(), cv::IMREAD_COLOR);
 
+        std::vector<float> landmarks;
+        cv::Mat mat;
+
         // Find faces
-        switch (detector_type) {
-            case DetectorType::face_detection_retail_0004: {
-                faces = vino_detector->detect(image);
-                break;
-            }
-            case DetectorType::face_detection_retail_0001: {
-                faces = vino_detector->detect(image);
-                break;
-            }
-            case DetectorType::haar_cascade: {
-                cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
-                //cascade.detectMultiScale(gray, faces, 1.5, 5, 0, cv::Size(150, 150));
-                break;
-            }
-            default: {
-                return -1;
-            }
-        }
+        std::vector<cv::Rect_<int>> detected_faces = vino_detector->detect(image);
+        cv::Rect face_rect = detected_faces[0];
+        landmarks = landmark_detector->detect(image(face_rect));
+        cv::Mat transformedFace = aligner->align(image(face_rect), landmarks);;
 
         // There must be one face per image
-        face_image = image(faces[0]);
+        face_image = transformedFace;// image(faces[0]);
 
         // Get and save embedding for a face
         // The library expects BGR image
         cv::resize(face_image, face_image, cv::Size(160, 160));
         std::vector<float> reference = classifier->embed(face_image);
-        std::cout << entry.path() << std::endl;
+        std::cout << entry.path() << " descriptor: ";
+
         for (float &number: reference) {
             std::cout << number << ",";
         }
 
         std::cout << std::endl;
         people.insert(std::pair<std::string, std::vector<float>>(entry.path().filename(), reference));
-        std::cout << "DB of People Scanned" << std::endl;
+        std::cout << "DB of users scanned" << std::endl;
     }
 
     // Now run webcam stream
@@ -187,8 +181,11 @@ int main(int argc, char *argv[]) {
             if (ignore) {
                 continue;
             }
+            std::vector<float> landmarks = landmark_detector->detect(image(face));
+            cv::Mat transformedFace = aligner->align(image(face), landmarks);
+
             // Get ROI
-            face_image = image(face);
+            face_image = transformedFace;// image(face);
             // Get embedding
             cv::resize(face_image, face_image, cv::Size(160, 160));
             std::vector<float> result = classifier->embed(face_image);
@@ -232,7 +229,7 @@ int main(int argc, char *argv[]) {
 
         if (gui) {
             cv::imshow("NCSRecognition", image);
-            auto a = cv::waitKey(1);
+            cv::waitKey(1);
             if (cv::getWindowImageRect("NCSRecognition").x == -1) {
                 std::cout << "X was pressed";
                 need_to_play = false;

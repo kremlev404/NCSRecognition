@@ -14,31 +14,33 @@ FaceRecognizer::FaceRecognizer(cv::String modelPath, cv::String configPath,
           configPath(std::move(configPath)),
           netSize(cv::Size(inputWidth, inputHeight)),
           scale(scale), mean(std::move(mean)), swapRB(swapRB),
-          backEnd(backEnd), target(target) {
+          backEnd(backEnd),
+          target(target) {
 }
 
 cv::dnn::Net FaceRecognizer::getNet() {
     static auto net = cv::dnn::Net::readFromModelOptimizer(modelPath, configPath);
-    static auto isSetted = false;
-    if (!isSetted) {
+    static auto is_setted = false;
+    if (!is_setted) {
         net.setPreferableBackend(backEnd);
         net.setPreferableTarget(target);
-        // std::cout << "InferenceEngineBackendType: " << cv::dnn::getInferenceEngineBackendType() << " CPU TYPE: "
-        //          << cv::dnn::getInferenceEngineCPUType() << std::endl;
-        std::vector ve = cv::dnn::getAvailableBackends();
-        auto[back, pref] = ve[0];
-        auto it = ve.begin();
-        while (it != ve.end()) {
-            std::cout << "FaceRecognizer Available Back: " << it->first << "Target: " << it->second << " " << std::endl;
+        std::vector available_backends = cv::dnn::getAvailableBackends();
+        auto it = available_backends.begin();
+        bool target_founded = false;
+        while (it != available_backends.end()) {
             auto tg = cv::dnn::getAvailableTargets(it->first);
-            auto targetIt = tg.begin();
-            while (targetIt != tg.end()) {
-                std::cout << "FaceRecognizer targetIt (0) is CPU, (3) is NCS:" << *targetIt << std::endl;
-                targetIt++;
+            if (std::find(tg.begin(), tg.end(), cv::dnn::Target::DNN_TARGET_MYRIAD) != tg.end()) {
+                target_founded = true;
+                break;
             }
             it++;
         }
-        isSetted = true;
+        if (!target_founded) {
+            throw std::invalid_argument("FaceRecognizer didn't found target");
+        } else {
+            std::cout << "FaceRecognizer created\n";
+        }
+        is_setted = true;
     }
     return net;
 }
