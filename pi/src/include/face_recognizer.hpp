@@ -28,8 +28,8 @@ public:
                    double scale = 1.0,
                    cv::Scalar mean = cv::Scalar(0, 0, 0, 0),
                    bool swapRB = false,
-                   int backEnd = 0,
-                   int target = 0);
+                   int backEnd = cv::dnn::DNN_BACKEND_INFERENCE_ENGINE,
+                   int target = cv::dnn::DNN_TARGET_MYRIAD);
 
     std::vector<float> embed(const cv::Mat &image) override;
 
