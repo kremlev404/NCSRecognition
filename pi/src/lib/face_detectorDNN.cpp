@@ -30,8 +30,8 @@ cv::dnn::Net FaceDetectorDNN::getNet() {
     if (!isSetted) {
         net.setPreferableBackend(backEnd);
         net.setPreferableTarget(target);
-        std::cout << "InferenceEngineBackendType: " << cv::dnn::getInferenceEngineBackendType() << " CPU TYPE: "
-                  << cv::dnn::getInferenceEngineCPUType() << std::endl;
+       // std::cout << "InferenceEngineBackendType: " << cv::dnn::getInferenceEngineBackendType() << " CPU TYPE: "
+        //          << cv::dnn::getInferenceEngineCPUType() << std::endl;
         std::vector ve = cv::dnn::getAvailableBackends();
         auto[back, pref] = ve[0];
         auto it = ve.begin();
@@ -54,7 +54,7 @@ std::vector<cv::Rect> FaceDetectorDNN::detect(const cv::Mat &image) {
     //cv::dnn::resetMyriadDevice();
     auto net = getNet();
 
-    std::cout << "FaceDetectorDNN detect\n" << std::endl;
+    //std::cout << "FaceDetectorDNN detect\n" << std::endl;
 
     std::vector<cv::Rect> detected_objects;
 
@@ -66,7 +66,7 @@ std::vector<cv::Rect> FaceDetectorDNN::detect(const cv::Mat &image) {
     net.setInput(inputBlob);
 
     cv::Mat outBlob = net.forward();
-    std::cout << "FaceDetectorDNN forwarded\n" << std::endl;
+    //std::cout << "FaceDetectorDNN forwarded\n" << std::endl;
     cv::Mat detection_as_mat(outBlob.size[2], outBlob.size[3], CV_32F, outBlob.ptr<float>());
 
 
