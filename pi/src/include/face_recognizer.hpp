@@ -8,7 +8,7 @@
 #include <opencv2/highgui.hpp>
 #include "classifier.hpp"
 
-class FaceRecognizer : public Classifier{
+class FaceRecognizer : public Classifier {
 private:
     cv::String modelPath;
     cv::String configPath;
@@ -19,8 +19,11 @@ private:
     //cv::dnn::Net net;
     int backEnd;
     int target;
+
     cv::dnn::Net getNet();
+
     static float cosSimilarity(std::vector<float> &first, std::vector<float> &second);
+
 public:
     FaceRecognizer(cv::String modelPath, cv::String configPath,
                    int inputWidth = 128,
@@ -34,6 +37,6 @@ public:
     std::vector<float> embed(const cv::Mat &image) override;
 
     float compareDescriptors(std::vector<float> &initial_person, std::vector<float> &compare_person,
-                                 float confidence_threshold ,
-                                 float votes_threshold ) override; // true - it's the same person
+                             float confidence_threshold,
+                             float votes_threshold) override;
 };

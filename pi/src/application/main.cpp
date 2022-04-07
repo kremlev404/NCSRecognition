@@ -3,7 +3,6 @@
 #include <memory>
 #include <map>
 
-#include <opencv2/objdetect/objdetect.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/videoio/videoio.hpp>
@@ -29,7 +28,7 @@ static const cv::String keys =
 
 int main(int argc, char *argv[]) {
     cv::CommandLineParser parser(argc, argv, keys);
-    auto detector_type = DetectorType::face_detection_retail_0004;
+    auto detector_type = DetectorType::haar_cascade;
     auto classifier_type = ClassifierType::face_reidentification_retail_0095;
     if (!parser.check()) {
         parser.printErrors();
@@ -104,13 +103,9 @@ int main(int argc, char *argv[]) {
         cv::namedWindow("NCSRecognition");
     }
 
-    // Load face detector_xml
-    // cv::CascadeClassifier cascade;
-    // cascade.load(detector_xml);
-
     const std::shared_ptr<Classifier> classifier = build_classifier(classifier_type, recognition_xml, recognition_bin,
                                                                     device);
-    auto vino_detector = build_detector(detector_type, detector_xml, detector_bin);
+    auto face_detector = build_detector(detector_type, detector_xml, detector_bin);
     auto aligner = std::make_unique<FaceAligner>();
     auto landmark_detector = std::make_unique<LandmarkDetector>(landmark_xml, landmark_bin);
 
@@ -132,7 +127,7 @@ int main(int argc, char *argv[]) {
         cv::Mat mat;
 
         // Find faces
-        std::vector<cv::Rect_<int>> detected_faces = vino_detector->detect(image);
+        std::vector<cv::Rect_<int>> detected_faces = face_detector->detect(image);
         cv::Rect face_rect = detected_faces[0];
         landmarks = landmark_detector->detect(image(face_rect));
         cv::Mat transformedFace = aligner->align(image(face_rect), landmarks);;
@@ -167,8 +162,7 @@ int main(int argc, char *argv[]) {
             cv::flip(image, image, 0);
         }
         cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
-        //cascade.detectMultiScale(gray, faces, 1.5, 5, 0, cv::Size(150, 150));
-        faces = vino_detector->detect(image);
+        faces = face_detector->detect(image);
         for (cv::Rect &face: faces) {
             bool ignore = false;
             for (cv::Rect &another_face: faces) {

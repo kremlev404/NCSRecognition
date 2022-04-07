@@ -2,7 +2,6 @@
 
 #include <utility>
 
-
 LandmarkDetector::LandmarkDetector(cv::String _modelPath, cv::String _configPath,
                                    int inputWidth,
                                    int inputHeight,

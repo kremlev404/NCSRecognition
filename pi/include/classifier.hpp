@@ -5,9 +5,7 @@
 
 #include "macros.h"
 
-// Supported classifications list
 enum ClassifierType {
-    IE_Facenet_V1,
     face_reidentification_retail_0095
 };
 
@@ -26,5 +24,5 @@ public:
 };
 
 // Classification factory function
-API std::shared_ptr<Classifier>
-build_classifier(ClassifierType type, const std::string &xml, const std::string &bin, const std::string &device);
+DEFAULT_VISIBILITY
+std::shared_ptr<Classifier> build_classifier(ClassifierType type, const std::string &xml, const std::string &bin, const std::string &device);

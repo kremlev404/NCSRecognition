@@ -5,7 +5,7 @@
 // Other compilers aren't supported
 #ifdef _MSC_VER                 // Microsoft compiler
 #elif __GNUC__                  // GCC compiler
-#define API __attribute__ ((visibility ("default")))
+#define DEFAULT_VISIBILITY __attribute__ ((visibility ("default")))
 #else
 #error UNKNOWN COMPILER TYPE (ONLY MICROSOFT AND GCC SUPPORTED) // error
 #endif

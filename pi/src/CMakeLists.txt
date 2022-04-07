@@ -11,21 +11,18 @@ set(IE_SHARED_LIBS libinference_engine.so)
 
 # MAKE LIBRARY
 set(SOURCES
-        ../include/ie.hpp
         ../include/detector.hpp
         ../include/classifier.hpp
         lib/factory.cpp
-        include/face_detector.hpp
-        lib/face_detectorDNN.cpp
         lib/face_detector.cpp
-        lib/ie_classifier.cpp
         include/face_recognizer.hpp
         lib/face_recognizer.cpp
         include/landmarks_detector.hpp
         lib/landmarks_detector.cpp
         include/face_aligner.hpp
         lib/face_aligner.cpp
-)
+        include/face_detector_cascade.hpp
+        lib/face_detector_cascade.cpp)
 add_library(CPPClassificator SHARED ${SOURCES})
 target_link_libraries(CPPClassificator ${OpenCV_LIBS} ${IE_SHARED_LIBS})
 
