@@ -21,7 +21,13 @@ private:
     std::shared_ptr<FaceAligner> aligner;
     std::shared_ptr<LandmarkDetector> landmark_detector;
     std::map<std::string, std::vector<float>> people;
+    cv::Scalar color = cv::Scalar(211, 235, 0);
+    cv::Scalar known_color = cv::Scalar(211, 235, 0);
+    cv::Scalar unknown_color = cv::Scalar(86, 5, 247);
+    float avg_fps = 0;
 public:
+    float getAvgFps() const;
+
     void initBD(const std::string &string);
 
     void play(bool gui, bool flip, cv::VideoCapture capture);

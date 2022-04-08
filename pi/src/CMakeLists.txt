@@ -9,7 +9,7 @@ link_directories("${IE_DIR}/lib/intel64")
 
 set(IE_SHARED_LIBS libinference_engine.so)
 
-# MAKE LIBRARY
+# MAKE library
 set(SOURCES
         ../include/detector.hpp
         ../include/classifier.hpp
@@ -23,7 +23,7 @@ set(SOURCES
         lib/face_aligner.cpp
         include/face_detector_cascade.hpp
         lib/face_detector_cascade.cpp
-        include/core_executor.hpp)
+        include/core_executor.hpp include/vino_net.hpp lib/vino_net.cpp)
 
 add_library(CPPClassificator SHARED ${SOURCES})
 target_link_libraries(CPPClassificator ${OpenCV_LIBS} ${IE_SHARED_LIBS})

@@ -1,61 +1,16 @@
 #include "face_recognizer.hpp"
 
-#include <utility>
-
-FaceRecognizer::FaceRecognizer(cv::String modelPath, cv::String configPath,
-                               int inputWidth,
-                               int inputHeight,
-                               double scale,
-                               cv::Scalar mean,
-                               bool swapRB,
-                               int backEnd,
-                               int target)
-        : modelPath(std::move(modelPath)),
-          configPath(std::move(configPath)),
-          netSize(cv::Size(inputWidth, inputHeight)),
-          scale(scale), mean(std::move(mean)), swapRB(swapRB),
-          backEnd(backEnd),
-          target(target) {
-}
-
-cv::dnn::Net FaceRecognizer::getNet() {
-    static auto net = cv::dnn::Net::readFromModelOptimizer(modelPath, configPath);
-    static auto is_setted = false;
-    if (!is_setted) {
-        net.setPreferableBackend(backEnd);
-        net.setPreferableTarget(target);
-        std::vector available_backends = cv::dnn::getAvailableBackends();
-        auto it = available_backends.begin();
-        bool target_founded = false;
-        while (it != available_backends.end()) {
-            auto tg = cv::dnn::getAvailableTargets(it->first);
-            if (std::find(tg.begin(), tg.end(), cv::dnn::Target::DNN_TARGET_MYRIAD) != tg.end()) {
-                target_founded = true;
-                break;
-            }
-            it++;
-        }
-        if (!target_founded) {
-            throw std::invalid_argument("FaceRecognizer didn't found target");
-        } else {
-            std::cout << "FaceRecognizer created\n";
-        }
-        is_setted = true;
-    }
-    return net;
-}
-
 std::vector<float> FaceRecognizer::embed(const cv::Mat &image) {
-    auto net = getNet();
+    static auto net = getNet("FaceRecognizer");
     std::vector<cv::Rect> detected_objects;
 
     cv::Mat resized_frame;
-    cv::resize(image, resized_frame, netSize);
+    cv::resize(image, resized_frame, net_size);
 
-    cv::Mat inputBlob = cv::dnn::blobFromImage(resized_frame, scale, netSize, mean, swapRB);
-    net.setInput(inputBlob);
+    cv::Mat inputBlob = cv::dnn::blobFromImage(resized_frame, scale, net_size, mean, swapRB);
+    net->setInput(inputBlob);
 
-    cv::Mat outBlob = net.forward();
+    cv::Mat outBlob = net->forward();
     return std::vector<float>(outBlob.reshape(1, 1));
 }
 

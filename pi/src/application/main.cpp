@@ -17,7 +17,7 @@ static const cv::String keys =
         "{device         |MYRIAD| backend device (CPU, MYRIAD)}"
         "{xml            |<none>| path to model definition    }"
         "{bin            |<none>| path to model weights       }"
-        "{detector       |<nonde>| path to face detector      }"
+        "{detector       |<none>| path to face detector      }"
         "{db             |<none>| path to reference people    }"
         "{width          |640| stream width                   }"
         "{height         |480| stream height                  }"
@@ -38,7 +38,7 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    auto detector_type = DetectorType::haar_cascade;
+    auto detector_type = DetectorType::face_detection_retail_0004;
     auto classifier_type = ClassifierType::face_reidentification_retail_0095;
 
     std::string home_dir = "/home/" + parser.get<std::string>("user_name");
@@ -102,16 +102,17 @@ int main(int argc, char *argv[]) {
     std::cout << "Resolution: " << width << "x" << height << std::endl;
     std::cout << "gui: " << gui << std::endl;
 
-    const std::shared_ptr<Classifier> classifier = build_classifier(classifier_type, recognition_xml, recognition_bin, device);
+    const std::shared_ptr<Classifier> classifier = build_classifier(classifier_type, recognition_xml, recognition_bin,
+                                                                    device);
     auto face_detector = build_detector(detector_type, detector_xml, detector_bin);
     auto aligner = std::make_shared<FaceAligner>();
     auto landmark_detector = std::make_shared<LandmarkDetector>(landmark_xml, landmark_bin);
 
-    auto core_executor = std::make_unique<CoreExecutor>(classifier,face_detector,aligner,landmark_detector);
+    auto core_executor = std::make_unique<CoreExecutor>(classifier, face_detector, aligner, landmark_detector);
 
     core_executor->initBD(db);
     core_executor->play(gui, flip, capture);
-
+    std::cout << "AVG FPS: " << core_executor->getAvgFps() << std::endl;
     capture.release();
     cv::destroyAllWindows();
 }

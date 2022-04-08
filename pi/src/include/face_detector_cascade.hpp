@@ -12,20 +12,20 @@
 
 class FaceDetectorCascade : public Detector {
 private:
-    cv::String modelPath;
-    double scaleFactor;
-    int minNeighbors;
+    cv::String model_path;
+    double scale_factor;
+    int min_neighbors;
     int flags;
-    cv::Size minSize;
+    cv::Size min_size;
 
     cv::CascadeClassifier getNet();
 
 public:
-    explicit FaceDetectorCascade(cv::String modelPath,
-                        double scaleFactor = 1.1,
-                        int minNeighbors = 3,
+    explicit FaceDetectorCascade(cv::String model_path,
+                        double scale_factor = 1.1,
+                        int min_neighbors = 3,
                         int flags = 0,
-                        cv::Size minSize = cv::Size(150, 150));
+                        cv::Size min_size = cv::Size(150, 150));
 
     std::vector<cv::Rect> detect(const cv::Mat &image) override;
 };

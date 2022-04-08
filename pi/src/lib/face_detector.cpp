@@ -2,67 +2,34 @@
 
 #include <utility>
 
-FaceDetector::FaceDetector(cv::String _modelPath, cv::String _configPath,
+FaceDetector::FaceDetector(cv::String model_path, cv::String config_path,
                            float confidence_threshold,
-                           int inputWidth,
-                           int inputHeight,
-                           double scale,
-                           cv::Scalar mean,
-                           bool swapRB,
-                           int backEnd,
-                           int target)
-        : modelPath(std::move(_modelPath)),
-          backEnd(backEnd),
-          target(target),
-          configPath(std::move(_configPath)),
-          netSize(cv::Size(inputWidth, inputHeight)),
-          confidence_threshold(confidence_threshold),
-          scale(scale),
-          mean(std::move(mean)),
-          swapRB(swapRB) {
-}
-
-cv::dnn::Net FaceDetector::getNet() {
-    static auto net = cv::dnn::Net::readFromModelOptimizer(modelPath, configPath);
-    static auto is_setted = false;
-    if (!is_setted) {
-        net.setPreferableBackend(backEnd);
-        net.setPreferableTarget(target);
-        std::vector available_backends = cv::dnn::getAvailableBackends();
-        auto it = available_backends.begin();
-        bool target_founded = false;
-        while (it != available_backends.end()) {
-            auto tg = cv::dnn::getAvailableTargets(it->first);
-            if (std::find(tg.begin(), tg.end(), cv::dnn::Target::DNN_TARGET_MYRIAD) != tg.end()) {
-                target_founded = true;
-                break;
-            }
-            it++;
-        }
-        if (!target_founded) {
-            throw std::runtime_error("FaceDetector didn't found target");
-        } else {
-            std::cout << "FaceDetector created\n";
-        }
-        is_setted = true;
-    }
-    return net;
+                           int input_width,
+                           int input_height,
+                           double scale)
+        : VinoNet(
+        std::move(model_path),
+        std::move(config_path),
+        input_width,
+        input_height,
+        scale),
+          confidence_threshold(confidence_threshold) {
 }
 
 std::vector<cv::Rect> FaceDetector::detect(const cv::Mat &image) {
     //cv::dnn::resetMyriadDevice();
-    auto net = getNet();
+    static auto net = getNet("FaceDetector");
 
     std::vector<cv::Rect> detected_objects;
 
     cv::Mat resized_frame;
-    cv::resize(image, resized_frame, netSize);
+    cv::resize(image, resized_frame, net_size);
 
-    cv::Mat inputBlob = cv::dnn::blobFromImage(resized_frame, scale, netSize, mean, swapRB);
+    cv::Mat inputBlob = cv::dnn::blobFromImage(resized_frame, scale, net_size, mean, swapRB);
 
-    net.setInput(inputBlob);
+    net->setInput(inputBlob);
 
-    cv::Mat outBlob = net.forward();
+    cv::Mat outBlob = net->forward();
     cv::Mat detection_as_mat(outBlob.size[2], outBlob.size[3], CV_32F, outBlob.ptr<float>());
 
     for (int i = 0; i < detection_as_mat.rows; i++) {

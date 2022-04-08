@@ -6,10 +6,10 @@ std::vector<float> FaceAligner::landmarks_ref = {0.31556875000000000, 0.46157410
                                                  0.34947187500000004, 0.8246919642857142,
                                                  0.65343645833333330, 0.8246919642857142};
 
-std::vector<cv::Point2f> FaceAligner::coordsToPoints(std::vector<float> &pointsCoords) {
+std::vector<cv::Point2f> FaceAligner::coordsToPoints(std::vector<float> &points_coords) {
     std::vector<cv::Point2f> points;
     for (int i = 0; i < 10; i += 2) {
-        points.emplace_back(pointsCoords[i], pointsCoords[i + 1]);
+        points.emplace_back(points_coords[i], points_coords[i + 1]);
     }
     return points;
 }

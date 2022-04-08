@@ -6,33 +6,21 @@
 #include <opencv2/dnn.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
+#include <utility>
 
 #include "detector.hpp"
+#include "vino_net.hpp"
 
-class FaceDetector : public Detector {
+class FaceDetector : public Detector, protected VinoNet {
 private:
-    cv::String modelPath;
-    cv::String configPath;
-    cv::Size netSize;
-    cv::Scalar mean;
-    bool swapRB;
-    double scale;
-    float confidence_threshold;
-    int backEnd;
-    int target;
-
-    cv::dnn::Net getNet();
+    float confidence_threshold{};
 
 public:
-    FaceDetector(cv::String modelPath, cv::String configPath,
+    FaceDetector(cv::String model_path, cv::String config_path,
                  float confidence_threshold,
-                 int inputWidth,
-                 int inputHeight,
-                 double scale = 1.0,
-                 cv::Scalar mean = cv::Scalar(0, 0, 0, 0),
-                 bool swapRB = false,
-                 int backEnd = cv::dnn::DNN_BACKEND_INFERENCE_ENGINE,
-                 int target = cv::dnn::DNN_TARGET_MYRIAD);
+                 int input_width,
+                 int input_height,
+                 double scale = 1.0);
 
     std::vector<cv::Rect> detect(const cv::Mat &image) override;
 };

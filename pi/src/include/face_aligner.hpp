@@ -12,7 +12,7 @@ class FaceAligner {
 private:
     static std::vector<float> landmarks_ref;
 
-    std::vector<cv::Point2f> coordsToPoints(std::vector<float> &pointsCoords);
+    std::vector<cv::Point2f> coordsToPoints(std::vector<float> &points_coords);
 
 public:
     cv::Mat align(const cv::Mat& image, std::vector<float> &landmarks);
