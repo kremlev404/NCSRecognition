@@ -16,18 +16,19 @@
 #include "core_executor.hpp"
 
 static const cv::String keys =
-        "{user_name      |pi| name of system user        }"
-        "{args_include   |false| use custom config               }"
+        "{user_name      |pi| name of system user             }"
+        "{args_include   |false| use custom config            }"
         "{device         |MYRIAD| backend device (CPU, MYRIAD)}"
         "{xml            |<none>| path to model definition    }"
         "{bin            |<none>| path to model weights       }"
-        "{detector       |<none>| path to face detector      }"
+        "{detector       |<none>| path to face detector       }"
+        "{d_type         |4| type of face detector            }"
         "{db             |<none>| path to reference people    }"
         "{width          |640| stream width                   }"
         "{height         |480| stream height                  }"
         "{flip           |false| flip stream images           }"
-        "{gui            |true| show gui                       }"
-        "{help           |false| show gui                       }";
+        "{gui            |true| show gui                      }"
+        "{help           |false| show gui                     }";
 
 int main(int argc, char *argv[]) {
     cv::CommandLineParser parser(argc, argv, keys);
@@ -42,12 +43,29 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    auto detector_type = DetectorType::face_detection_retail_0004;
+    DetectorType detector_type = DetectorType::face_detection_retail_0004;
     auto classifier_type = ClassifierType::face_reidentification_retail_0095;
 
     std::string home_dir = "/home/" + parser.get<std::string>("user_name");
     std::string recognition_xml, recognition_bin, detector_xml, detector_bin, landmark_xml, landmark_bin, db;
 
+    switch (parser.get<std::string>("d_type")[0]) {
+        case ('1') : {
+            detector_type = DetectorType::face_detection_retail_0001;
+            break;
+        }
+        case ('4') : {
+            detector_type = DetectorType::face_detection_retail_0004;
+            break;
+        }
+        case ('h') : {
+            detector_type = DetectorType::haar_cascade;
+            break;
+        }
+        default: {
+            return -1;
+        }
+    }
     if (parser.get<bool>("args_include")) {
         recognition_xml = parser.get<std::string>("recognition_xml");
         recognition_bin = parser.get<std::string>("recognition_bin");
