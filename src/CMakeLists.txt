@@ -1,30 +1,40 @@
-INCLUDE_DIRECTORIES("../include") # BUILD HEADERS
-INCLUDE_DIRECTORIES("${OpenCV_INCLUDE_DIRS}")
-INCLUDE_DIRECTORIES("${EIGEN3_INCLUDE_DIRS}")
-INCLUDE_DIRECTORIES("${IE_DIR}/include")
+# BUILD headers
+include_directories("include")
+include_directories("${OpenCV_INCLUDE_DIRS}")
+include_directories("${IE_DIR}/include")
 
-LINK_DIRECTORIES("${IE_DIR}/lib/armv7l")
-LINK_DIRECTORIES("${IE_DIR}/lib/intel64")
+# LINK
+link_directories("${IE_DIR}/lib/armv7l")
+link_directories("${IE_DIR}/lib/intel64")
 
-SET(IE_SHARED_LIBS libinference_engine.so)
+set(IE_SHARED_LIBS libinference_engine.so)
 
-# MAKE LIBRARY
-SET(SOURCES 
-  face_align.cpp
-  face_detector.cpp
-  face_recognition.cpp
-  landmarks_detector.cpp 
-  video_assistance.cpp
-)
-ADD_LIBRARY(LIB SHARED ${SOURCES})
-TARGET_LINK_LIBRARIES(LIB ${OpenCV_LIBS} ${IE_SHARED_LIBS} ${EIGEN3_INCLUDE_DIRS})
+# MAKE library
+set(SOURCES
+        ../include/detector.hpp
+        ../include/classifier.hpp
+        lib/factory.cpp
+        lib/face_detector.cpp
+        include/face_recognizer.hpp
+        lib/face_recognizer.cpp
+        include/landmarks_detector.hpp
+        lib/landmarks_detector.cpp
+        include/face_aligner.hpp
+        lib/face_aligner.cpp
+        include/face_detector_cascade.hpp
+        lib/face_detector_cascade.cpp
+        include/core_executor.hpp include/vino_net.hpp lib/vino_net.cpp)
 
-# MAKE MAIN 
-SET(SOURCES main.cpp)
-ADD_EXECUTABLE(NCSRecognition ${SOURCES})
-TARGET_LINK_LIBRARIES(NCSRecognition LIB ${OpenCV_LIBS} ${IE_SHARED_LIBS} ${EIGEN3_INCLUDE_DIRS} "stdc++fs")
+add_library(CPPClassificator SHARED ${SOURCES})
+target_link_libraries(CPPClassificator ${OpenCV_LIBS} ${IE_SHARED_LIBS})
 
-INSTALL (TARGETS LIB NCSRecognition
+# MAKE Application
+set(SOURCES application/main.cpp application/core_executor.cpp)
+add_executable(NCSRecognition ${SOURCES})
+target_link_libraries(NCSRecognition CPPClassificator ${OpenCV_LIBS} ${IE_SHARED_LIBS}  "stdc++fs")
+
+# MAKE Install
+install(TARGETS CPPClassificator NCSRecognition
     DESTINATION ${PROJECT_SOURCE_DIR}/install/bin)
-INSTALL (DIRECTORY ${PROJECT_SOURCE_DIR}/include
+install(DIRECTORY ${PROJECT_SOURCE_DIR}/include
     DESTINATION ${PROJECT_SOURCE_DIR}/install)
