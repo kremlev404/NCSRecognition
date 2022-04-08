@@ -1,3 +1,7 @@
+/*
+ * Performed by Anton Kremlev
+ */
+
 #pragma once
 
 #include <iostream>

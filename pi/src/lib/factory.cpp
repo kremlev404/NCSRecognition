@@ -1,3 +1,7 @@
+/*
+ * Performed by Anton Kremlev
+ */
+
 #include "face_recognizer.hpp"
 #include "face_detector.hpp"
 #include "face_detector_cascade.hpp"

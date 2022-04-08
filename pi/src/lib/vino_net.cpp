@@ -1,3 +1,7 @@
+/*
+ * Performed by Anton Kremlev
+ */
+
 #include <iostream>
 
 #include "vino_net.hpp"

@@ -1,3 +1,7 @@
+/*
+ * Performed by Anton Kremlev
+ */
+
 #include "face_recognizer.hpp"
 
 std::vector<float> FaceRecognizer::embed(const cv::Mat &image) {

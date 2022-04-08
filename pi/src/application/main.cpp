@@ -1,3 +1,7 @@
+/*
+ * Performed by Anton Kremlev
+ */
+
 #include <iostream>
 #include <memory>
 #include <map>

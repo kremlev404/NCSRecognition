@@ -1,3 +1,7 @@
+/*
+ * Performed by Anton Kremlev
+ */
+
 #pragma once
 
 #include <iostream>
@@ -12,20 +16,19 @@
 
 class FaceDetectorCascade : public Detector {
 private:
-    cv::String model_path;
     double scale_factor;
     int min_neighbors;
     int flags;
     cv::Size min_size;
 
-    cv::CascadeClassifier getNet();
+    std::shared_ptr<cv::CascadeClassifier> cascade;
 
 public:
-    explicit FaceDetectorCascade(cv::String model_path,
-                        double scale_factor = 1.1,
-                        int min_neighbors = 3,
-                        int flags = 0,
-                        cv::Size min_size = cv::Size(150, 150));
+    explicit FaceDetectorCascade(const cv::String &model_path,
+                                 double scale_factor = 1.1,
+                                 int min_neighbors = 3,
+                                 int flags = 0,
+                                 cv::Size min_size = cv::Size(150, 150));
 
     std::vector<cv::Rect> detect(const cv::Mat &image) override;
 };

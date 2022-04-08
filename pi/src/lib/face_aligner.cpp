@@ -1,3 +1,7 @@
+/*
+ * Performed by Anton Kremlev
+ */
+
 #include "face_aligner.hpp"
 
 std::vector<float> FaceAligner::landmarks_ref = {0.31556875000000000, 0.4615741071428571,

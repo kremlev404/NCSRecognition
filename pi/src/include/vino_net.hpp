@@ -1,3 +1,7 @@
+/*
+ * Performed by Anton Kremlev
+ */
+
 #pragma once
 
 #include <opencv2/dnn.hpp>

@@ -1,3 +1,7 @@
+/*
+ * Performed by Anton Kremlev
+ */
+
 #pragma once
 
 // API macros allows export some symbols from the library

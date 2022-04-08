@@ -1,3 +1,7 @@
+/*
+ * Performed by Anton Kremlev
+ */
+
 #include "landmarks_detector.hpp"
 
 std::vector<float> LandmarkDetector::detect(const cv::Mat &image) {
