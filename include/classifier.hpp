@@ -7,7 +7,7 @@
 #include <vector>
 #include <opencv2/core/mat.hpp>
 
-#include "macros.h"
+#include "macros.hpp"
 
 enum ClassifierType {
     face_reidentification_retail_0095

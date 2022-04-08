@@ -6,7 +6,7 @@
 
 #include <opencv2/core/mat.hpp>
 
-#include "macros.h"
+#include "macros.hpp"
 
 enum DetectorType {
     face_detection_retail_0001,
