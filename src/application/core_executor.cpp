@@ -20,32 +20,60 @@ CoreExecutor::CoreExecutor(std::shared_ptr<Classifier> classifier,
 
 }
 
+std::vector<float> CoreExecutor::getEmbed(const std::string &path_to_image) {
+    cv::Mat image;
+
+    image = cv::imread(path_to_image, cv::IMREAD_COLOR);
+
+    std::vector<float> landmarks;
+    cv::Mat mat;
+
+    std::vector<cv::Rect_<int>> detected_faces = face_detector->detect(image);
+    cv::Rect face_rect = detected_faces[0];
+    landmarks = landmark_detector->detect(image(face_rect));
+    cv::Mat transformedFace = aligner->align(image(face_rect), landmarks);;
+
+    cv::resize(transformedFace, transformedFace, cv::Size(160, 160));
+    return classifier->embed(transformedFace);
+}
+
 
 void CoreExecutor::initBD(const std::string &db) {
     cv::Mat image;
-    for (const auto &entry: std::filesystem::directory_iterator(db.c_str())) {
-        std::cout << "User photo url: " << entry.path() << std::endl;
-        image = cv::imread(entry.path(), cv::IMREAD_COLOR);
+    const std::string dummy_folder = "..";
 
-        std::vector<float> landmarks;
-        cv::Mat mat;
+    using r_iterator = std::filesystem::recursive_directory_iterator;
+    std::filesystem::path current_folder = dummy_folder;
+    auto person_descriptors = std::vector<FaceData>();
 
-        std::vector<cv::Rect_<int>> detected_faces = face_detector->detect(image);
-        cv::Rect face_rect = detected_faces[0];
-        landmarks = landmark_detector->detect(image(face_rect));
-        cv::Mat transformedFace = aligner->align(image(face_rect), landmarks);;
-
-        cv::resize(transformedFace, transformedFace, cv::Size(160, 160));
-        std::vector<float> reference = classifier->embed(transformedFace);
-        std::cout << entry.path() << " descriptor: ";
-
-        for (float &number: reference) {
-            std::cout << number << ",";
+    for (r_iterator i(db.c_str()), end; i != end; ++i) {
+        auto name = i->path().filename();
+        if (!is_directory(i->path())) {
+            auto descriptor = getEmbed(i->path());
+            person_descriptors.push_back(FaceData{name, descriptor});
+        } else {
+            if (current_folder != name) {
+                if (current_folder != dummy_folder) {
+                    peoples.insert(std::pair(current_folder, person_descriptors));
+                }
+                current_folder = name;
+                person_descriptors.clear();
+            }
         }
+    }
+    if (!person_descriptors.empty()) {
+        peoples.insert(std::pair(current_folder, person_descriptors));
+        person_descriptors.clear();
+    }
 
-        std::cout << std::endl;
-        people.insert(std::pair<std::string, std::vector<float>>(entry.path().filename(), reference));
-        std::cout << "DB of users scanned" << std::endl;
+    std::cout << "DB of users scanned" << std::endl;
+    std::cout << peoples.size() << "\n";
+
+    for (const auto&[key, value]: peoples) {
+        for (const auto &it: value) {
+            std::cout << "Person: " << key << " FileName: " << it.file_name << " Desc: " << it.descriptor[0]
+                      << "\n";
+        }
     }
 }
 
@@ -90,12 +118,14 @@ void CoreExecutor::play(const bool gui, const bool flip, cv::VideoCapture captur
             float max_distance = -1;
             std::string max_key;
 
-            for (std::pair<std::string, std::vector<float>> pair: people) {
-                float distance = classifier->compareDescriptors(pair.second, result);
+            for (const auto&[person_name, person_data]: peoples) {
+                for (auto face_data: person_data) {
+                    float distance = classifier->compareDescriptors(face_data.descriptor, result);
 
-                if (distance > max_distance) {
-                    max_distance = distance;
-                    max_key = pair.first;
+                    if (distance > max_distance) {
+                        max_distance = distance;
+                        max_key = person_name;
+                    }
                 }
             }
 

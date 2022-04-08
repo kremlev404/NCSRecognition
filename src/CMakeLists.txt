@@ -13,6 +13,7 @@ set(IE_SHARED_LIBS libinference_engine.so)
 set(SOURCES
         ../include/detector.hpp
         ../include/classifier.hpp
+        include/data/face_data.hpp
         lib/factory.cpp
         lib/face_detector.cpp
         include/face_recognizer.hpp

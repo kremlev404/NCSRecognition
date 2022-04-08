@@ -17,6 +17,7 @@
 #include "detector.hpp"
 #include "face_aligner.hpp"
 #include "landmarks_detector.hpp"
+#include "data/face_data.hpp"
 
 class CoreExecutor {
 private:
@@ -25,10 +26,17 @@ private:
     std::shared_ptr<FaceAligner> aligner;
     std::shared_ptr<LandmarkDetector> landmark_detector;
     std::map<std::string, std::vector<float>> people;
+    //
+    // kremlev ->  ( kremlev1.png:descriptor ) ..
+    // mmusk -> ( musk1.png:descriptor ) ..
+    //
+    std::map<std::string, std::vector<FaceData>> peoples;
     cv::Scalar color = cv::Scalar(211, 235, 0);
     cv::Scalar known_color = cv::Scalar(211, 235, 0);
     cv::Scalar unknown_color = cv::Scalar(86, 5, 247);
     float avg_fps = 0;
+
+    std::vector<float> getEmbed(const std::string& path_to_image);
 public:
     float getAvgFps() const;
 

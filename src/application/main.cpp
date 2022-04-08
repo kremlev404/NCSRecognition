@@ -16,19 +16,20 @@
 #include "core_executor.hpp"
 
 static const cv::String keys =
-        "{user_name      |pi| name of system user             }"
-        "{args_include   |false| use custom config            }"
-        "{device         |MYRIAD| backend device (CPU, MYRIAD)}"
-        "{xml            |<none>| path to model definition    }"
-        "{bin            |<none>| path to model weights       }"
-        "{detector       |<none>| path to face detector       }"
-        "{d_type         |4| type of face detector            }"
-        "{db             |<none>| path to reference people    }"
-        "{width          |640| stream width                   }"
-        "{height         |480| stream height                  }"
-        "{flip           |false| flip stream images           }"
-        "{gui            |true| show gui                      }"
-        "{help           |false| show gui                     }";
+        "{user_name      |pi| name of system user                }"
+        "{args_include   |false| use custom config               }"
+        "{device         |MYRIAD| backend device (CPU, MYRIAD)   }"
+        "{xml            |<none>| path to model definition       }"
+        "{bin            |<none>| path to model weights          }"
+        "{detector       |<none>| path to face detector          }"
+        "{d_type         |4| type of face detector               }"
+        "{db             |<none>| path to reference people       }"
+        "{width          |640| stream width                      }"
+        "{height         |480| stream height                     }"
+        "{source         |/study/data/video/me.mp4| stream source}"
+        "{flip           |false| flip stream images              }"
+        "{gui            |true| show gui                         }"
+        "{help           |false| show gui                        }";
 
 int main(int argc, char *argv[]) {
     cv::CommandLineParser parser(argc, argv, keys);
@@ -43,7 +44,7 @@ int main(int argc, char *argv[]) {
         return 0;
     }
 
-    DetectorType detector_type = DetectorType::face_detection_retail_0004;
+    DetectorType detector_type;
     auto classifier_type = ClassifierType::face_reidentification_retail_0095;
 
     std::string home_dir = "/home/" + parser.get<std::string>("user_name");
@@ -104,11 +105,19 @@ int main(int argc, char *argv[]) {
     const bool flip = parser.get<bool>("flip");
     const int width = parser.get<int>("width");
     const int height = parser.get<int>("height");
+    const auto source = parser.get<std::string>("source");
 
-    cv::VideoCapture capture(home_dir + "/study/data/video/me.mp4");
+    cv::VideoCapture capture;
+    if (source == "0") {
+        capture = cv::VideoCapture(0);
+    } else {
+        // /study/data/video/me.mp4
+        capture = cv::VideoCapture(home_dir + source);
+    }
     if (!capture.isOpened()) {
         throw std::runtime_error("Couldn't open a video stream");
     }
+
     if (gui) {
         cv::namedWindow("NCSRecognition");
     }
@@ -116,10 +125,12 @@ int main(int argc, char *argv[]) {
     capture.set(cv::CAP_PROP_FRAME_HEIGHT, height);
 
     std::cout << "Device: " << device << std::endl;
+    std::cout << "Stream Source: " << source << std::endl;
     std::cout << "Recognize XML: " << recognition_xml << std::endl;
     std::cout << "Recognize BIN: " << recognition_bin << std::endl;
     std::cout << "Detector_xml: " << detector_xml << std::endl;
     std::cout << "Detector_bin: " << detector_bin << std::endl;
+    std::cout << "Detector Type: " << detector_type << std::endl;
     std::cout << "People: " << db << std::endl;
     std::cout << "Resolution: " << width << "x" << height << std::endl;
     std::cout << "gui: " << gui << std::endl;
