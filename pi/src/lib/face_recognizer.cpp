@@ -36,7 +36,7 @@ cv::dnn::Net FaceRecognizer::getNet() {
             it++;
         }
         if (!target_founded) {
-            throw std::invalid_argument("FaceRecognizer didn't found target");
+            throw std::runtime_error("FaceRecognizer didn't found target");
         } else {
             std::cout << "FaceRecognizer created\n";
         }
@@ -62,7 +62,7 @@ std::vector<float> FaceRecognizer::embed(const cv::Mat &image) {
 /*cosSimilarity = A*B/(|A|*|B|) */
 float FaceRecognizer::cosSimilarity(std::vector<float> &first, std::vector<float> &second) {
     if (first.size() != second.size()) {
-        throw "Vectors must have the same size";
+        throw std::runtime_error("Vectors must have the same size");
     }
     size_t vec_size = first.size();
     float AB_numerator = 0;
@@ -99,7 +99,7 @@ float FaceRecognizer::compareDescriptors(std::vector<float> &initial_person, std
     }
     return false;*/
     if (initial_person.size() != compare_person.size()) {
-        throw std::invalid_argument("Both vectors must have the same size");
+        throw std::runtime_error("Both vectors must have the same size");
     }
 
     const size_t size = initial_person.size();

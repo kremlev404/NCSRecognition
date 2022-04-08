@@ -22,12 +22,14 @@ set(SOURCES
         include/face_aligner.hpp
         lib/face_aligner.cpp
         include/face_detector_cascade.hpp
-        lib/face_detector_cascade.cpp)
+        lib/face_detector_cascade.cpp
+        include/core_executor.hpp)
+
 add_library(CPPClassificator SHARED ${SOURCES})
 target_link_libraries(CPPClassificator ${OpenCV_LIBS} ${IE_SHARED_LIBS})
 
 # MAKE Application
-set(SOURCES application/main.cpp)
+set(SOURCES application/main.cpp application/core_executor.cpp)
 add_executable(NCSRecognition ${SOURCES})
 target_link_libraries(NCSRecognition CPPClassificator ${OpenCV_LIBS} ${IE_SHARED_LIBS}  "stdc++fs")
 

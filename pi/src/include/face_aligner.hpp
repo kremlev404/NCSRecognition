@@ -15,6 +15,6 @@ private:
     std::vector<cv::Point2f> coordsToPoints(std::vector<float> &pointsCoords);
 
 public:
-    cv::Mat align(cv::Mat image, std::vector<float> &landmarks);
+    cv::Mat align(const cv::Mat& image, std::vector<float> &landmarks);
 };
 

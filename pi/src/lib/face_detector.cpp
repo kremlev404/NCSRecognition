@@ -40,7 +40,7 @@ cv::dnn::Net FaceDetector::getNet() {
             it++;
         }
         if (!target_founded) {
-            throw std::invalid_argument("FaceDetector didn't found target");
+            throw std::runtime_error("FaceDetector didn't found target");
         } else {
             std::cout << "FaceDetector created\n";
         }

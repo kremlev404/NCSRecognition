@@ -36,7 +36,7 @@ cv::dnn::Net LandmarkDetector::getNet() {
             it++;
         }
         if (!target_founded) {
-            throw std::invalid_argument("LandmarkDetector didn't found target");
+            throw std::runtime_error("LandmarkDetector didn't found target");
         } else {
             std::cout << "LandmarkDetector created\n";
         }

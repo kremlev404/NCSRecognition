@@ -14,7 +14,7 @@ std::vector<cv::Point2f> FaceAligner::coordsToPoints(std::vector<float> &pointsC
     return points;
 }
 
-cv::Mat FaceAligner::align(cv::Mat face_crop, std::vector<float> &lands) {
+cv::Mat FaceAligner::align(const cv::Mat &face_crop, std::vector<float> &lands) {
     std::vector<cv::Point2f> lands_coords = coordsToPoints(lands);
     std::vector<cv::Point2f> lands_ref_coords = coordsToPoints(FaceAligner::landmarks_ref);
 
