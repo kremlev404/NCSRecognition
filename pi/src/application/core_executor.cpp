@@ -1,6 +1,8 @@
 #include <filesystem>
-#include <opencv2/core/mat.hpp>
 #include <utility>
+
+#include <opencv2/core/mat.hpp>
+
 #include "core_executor.hpp"
 
 CoreExecutor::CoreExecutor(std::shared_ptr<Classifier> classifier,

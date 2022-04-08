@@ -21,7 +21,7 @@ private:
     cv::CascadeClassifier getNet();
 
 public:
-    FaceDetectorCascade(cv::String modelPath,
+    explicit FaceDetectorCascade(cv::String modelPath,
                         double scaleFactor = 1.1,
                         int minNeighbors = 3,
                         int flags = 0,

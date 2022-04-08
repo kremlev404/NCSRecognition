@@ -14,9 +14,7 @@ typedef std::vector<float> FaceDescriptor;
 // Interface of a classification
 class Classifier {
 public:
-    virtual float compareDescriptors(std::vector<float> &initial_person, std::vector<float> &compare_person,
-                                    float confidence_threshold = 0.34,
-                                    float votes_threshold = 0.5) = 0;
+    virtual float compareDescriptors(std::vector<float> &initial_person, std::vector<float> &compare_person) = 0;
 
     virtual FaceDescriptor embed(const cv::Mat &face) = 0;
 

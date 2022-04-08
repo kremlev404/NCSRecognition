@@ -15,9 +15,9 @@ private:
     cv::Scalar mean;
     bool swapRB;
     double scale;
-    //cv::dnn::Net net;
     int backEnd;
     int target;
+
     cv::dnn::Net getNet();
 
 public:

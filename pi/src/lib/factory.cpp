@@ -2,7 +2,6 @@
 #include "face_detector.hpp"
 #include "face_detector_cascade.hpp"
 
-//Factory methods
 std::shared_ptr<Classifier>
 build_classifier(ClassifierType type, const std::string &xml, const std::string &bin, const std::string &device) {
     if (type == ClassifierType::face_reidentification_retail_0095) {

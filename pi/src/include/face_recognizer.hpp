@@ -6,6 +6,7 @@
 #include <opencv2/dnn.hpp>
 #include <opencv2/imgproc.hpp>
 #include <opencv2/highgui.hpp>
+
 #include "classifier.hpp"
 
 class FaceRecognizer : public Classifier {
@@ -16,7 +17,6 @@ private:
     cv::Scalar mean;
     bool swapRB;
     double scale;
-    //cv::dnn::Net net;
     int backEnd;
     int target;
 
@@ -36,7 +36,5 @@ public:
 
     std::vector<float> embed(const cv::Mat &image) override;
 
-    float compareDescriptors(std::vector<float> &initial_person, std::vector<float> &compare_person,
-                             float confidence_threshold,
-                             float votes_threshold) override;
+    float compareDescriptors(std::vector<float> &initial_person, std::vector<float> &compare_person) override;
 };

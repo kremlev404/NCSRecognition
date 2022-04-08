@@ -1,4 +1,5 @@
 #pragma once
+
 #include <iostream>
 #include <string>
 
@@ -17,10 +18,11 @@ private:
     bool swapRB;
     double scale;
     float confidence_threshold;
-    //cv::dnn::Net net;
     int backEnd;
     int target;
+
     cv::dnn::Net getNet();
+
 public:
     FaceDetector(cv::String modelPath, cv::String configPath,
                  float confidence_threshold,
@@ -31,5 +33,6 @@ public:
                  bool swapRB = false,
                  int backEnd = cv::dnn::DNN_BACKEND_INFERENCE_ENGINE,
                  int target = cv::dnn::DNN_TARGET_MYRIAD);
-    std::vector<cv::Rect> detect(const cv::Mat& image) override;
+
+    std::vector<cv::Rect> detect(const cv::Mat &image) override;
 };

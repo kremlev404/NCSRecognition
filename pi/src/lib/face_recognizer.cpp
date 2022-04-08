@@ -36,7 +36,7 @@ cv::dnn::Net FaceRecognizer::getNet() {
             it++;
         }
         if (!target_founded) {
-            throw std::runtime_error("FaceRecognizer didn't found target");
+            throw std::invalid_argument("FaceRecognizer didn't found target");
         } else {
             std::cout << "FaceRecognizer created\n";
         }
@@ -79,41 +79,10 @@ float FaceRecognizer::cosSimilarity(std::vector<float> &first, std::vector<float
     return AB_numerator / AB_denominator;
 }
 
-/* @initial_person - contains person individual vectors(size: 256) from different photos
-   @compare_person - with which we compare
-*/
-float FaceRecognizer::compareDescriptors(std::vector<float> &initial_person, std::vector<float> &compare_person,
-                                   float confidence_threshold, float votes_threshold) {
-/*    int positive = 0; // positive votes
-    if (initial_person.size() < 1) {
-        throw "Person vector is empty";
-    }
-    for (std::vector<float> &photo: initial_person) {
-        if (FaceRecognizer::cosSimilarity(photo, compare_person) > confidence_threshold) {
-            positive++;
-        }
-    }
-    return (float) positive / initial_person.size()
-    *//*if ((float) positive / initial_person.size() >= votes_threshold) {
-        return true;
-    }
-    return false;*/
+float FaceRecognizer::compareDescriptors(std::vector<float> &initial_person, std::vector<float> &compare_person) {
     if (initial_person.size() != compare_person.size()) {
         throw std::runtime_error("Both vectors must have the same size");
     }
 
-    const size_t size = initial_person.size();
-    float dot = 0;
-    float norm1 = 0;
-    float norm2 = 0;
-
-    for (size_t i = 0; i < size; i++) {
-        dot += initial_person[i] * compare_person[i];
-        norm1 += std::pow(initial_person[i], 2);
-        norm2 += std::pow(compare_person[i], 2);
-    }
-
-    float similarity = dot / (std::sqrt(norm1) * std::sqrt(norm2));
-
-    return std::acos(similarity);
+    return cosSimilarity(initial_person, compare_person);
 }
