@@ -23,7 +23,10 @@ set(SOURCES
         lib/face_aligner.cpp
         include/face_detector_cascade.hpp
         lib/face_detector_cascade.cpp
-        include/core_executor.hpp include/vino_net.hpp lib/vino_net.cpp)
+        include/core_executor.hpp
+        lib/vino_net.cpp
+        include/vino_net.hpp
+)
 
 add_library(CPPClassificator SHARED ${SOURCES})
 target_link_libraries(CPPClassificator ${OpenCV_LIBS} ${IE_SHARED_LIBS})
