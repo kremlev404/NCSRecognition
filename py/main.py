@@ -14,7 +14,14 @@ firebaseConfig = {
 if __name__ == '__main__':
     firebase = pyrebase.initialize_app(firebaseConfig)
     db = firebase.database()
-    db.child("kremlev404").child("raspId1").update({'type': "raspberry"})
-    db.child("kremlev404").child("raspId1").child("recognizedPersonId1").update(
+    db.child("mId:kremlev404").child("rsId:raspId1").update({'type': "x86"})
+    db.child("mId:kremlev404").child("rsId:raspId1").child("pId:recognizedPersonId1").update(
         {'prob': [0.70, 0.22, 0.77, 0.65],
+         'timestamp': ["14.04.2022;23.00", "14.04.2022;23.05", "14.04.2022;23.10", "14.04.2022;23.15"]})
+    db.child("mId:kremlev404").child("rsId:raspId2").update({'type': "raspberry"})
+    db.child("mId:kremlev404").child("rsId:raspId2").child("pId:recognizedPersonId2").update(
+        {'prob': [0.70, 0.22, 0.77, 0.65],
+         'timestamp': ["14.04.2022;23.00", "14.04.2022;23.05", "14.04.2022;23.10", "14.04.2022;23.15"]})
+    db.child("mId:kremlev404").child("rsId:raspId2").child("pId:recognizedPersonId3").update(
+        {'prob': [0.20, 0.32, 0.47, 0.55],
          'timestamp': ["14.04.2022;23.00", "14.04.2022;23.05", "14.04.2022;23.10", "14.04.2022;23.15"]})
