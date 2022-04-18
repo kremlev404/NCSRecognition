@@ -18,7 +18,6 @@
 class FaceRecognizer : public Classifier, protected VinoNet {
 private:
     static float cosSimilarity(std::vector<float> &first, std::vector<float> &second);
-
 public:
     FaceRecognizer(cv::String model_path, cv::String config_path) : VinoNet(std::move(model_path),
                                                                             std::move(config_path),

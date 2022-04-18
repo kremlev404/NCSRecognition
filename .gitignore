@@ -14,6 +14,7 @@ CTestTestfile.cmake
 _deps
 *.so
 .idea
+__pycache__
 cmake-build-release
 cmake-build-debug
 pi/.idea/

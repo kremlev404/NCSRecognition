@@ -1,27 +1,40 @@
-import pyrebase
+#
+# Performed by Anton Kremlev
+#
 
-firebaseConfig = {
-    'apiKey': "AIzaSyDNjvqZU1sgyycaNAUKsuNKNERqYqTohMo",
-    'authDomain': "ncsrecognition.firebaseapp.com",
-    'databaseURL': "https://ncsrecognition-default-rtdb.europe-west1.firebasedatabase.app",
-    'projectId': "ncsrecognition",
-    'storageBucket': "ncsrecognition.appspot.com",
-    'messagingSenderId': "311133578336",
-    'appId': "1:311133578336:web:24c82cf92cc51e918a4f05",
-    'measurementId': "G-4VZCTGE7M4"
-}
-# Press the green button in the gutter to run the script.
+import pyrebase
+import config
+import argparse
+
 if __name__ == '__main__':
-    firebase = pyrebase.initialize_app(firebaseConfig)
+    print("[MAIN.PY] launched")
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-id', '--person_id', help='person_id', type=str)
+    parser.add_argument('-t', '--timestamp', help='timestamp', type=int)
+    parser.add_argument('-p', '--prob', help='prob', type=float)
+    args = parser.parse_args()
+
+    firebase = pyrebase.initialize_app(config.firebaseConfig)
     db = firebase.database()
-    db.child("mId:kremlev404").child("rsId:raspId1").update({'type': "x86"})
-    db.child("mId:kremlev404").child("rsId:raspId1").child("pId:recognizedPersonId1").update(
-        {'prob': [0.70, 0.22, 0.77, 0.65],
-         'timestamp': ["14.04.2022;23.00", "14.04.2022;23.05", "14.04.2022;23.10", "14.04.2022;23.15"]})
-    db.child("mId:kremlev404").child("rsId:raspId2").update({'type': "raspberry"})
-    db.child("mId:kremlev404").child("rsId:raspId2").child("pId:recognizedPersonId2").update(
-        {'prob': [0.70, 0.22, 0.77, 0.65],
-         'timestamp': ["14.04.2022;23.00", "14.04.2022;23.05", "14.04.2022;23.10", "14.04.2022;23.15"]})
-    db.child("mId:kremlev404").child("rsId:raspId2").child("pId:recognizedPersonId3").update(
-        {'prob': [0.20, 0.32, 0.47, 0.55],
-         'timestamp': ["14.04.2022;23.00", "14.04.2022;23.05", "14.04.2022;23.10", "14.04.2022;23.15"]})
+
+    prob_list = db.child(config.userId).child(config.deviceId).child("pId:" + args.person_id).child(
+        "prob").get().val()
+    timestamp_list = db.child(config.userId).child(config.deviceId).child("pId:" + args.person_id).child(
+        "timestamp").get().val()
+
+    # empty person
+    if prob_list is None or timestamp_list is None:
+        db.child(config.userId).child(config.deviceId).child("pId:" + args.person_id).update(
+            {'prob': [args.prob],
+             'timestamp': [args.timestamp]})
+        db.child(config.userId).child(config.deviceId).update({'type': config.deviceType})
+        print("[MAIN.PY] New person created: ", end='')
+        print(db.child(config.userId).child(config.deviceId).get().val())
+    else:
+        prob_list.append(args.prob)
+        timestamp_list.append(args.timestamp)
+        db.child(config.userId).child(config.deviceId).child("pId:" + args.person_id).update(
+            {'prob': prob_list,
+             'timestamp': timestamp_list})
+        print("[MAIN.PY] person " + args.person_id + " updated: ", end='')
+        print(db.child(config.userId).child(config.deviceId).get().val())

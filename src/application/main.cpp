@@ -15,6 +15,8 @@
 #include "landmarks_detector.hpp"
 #include "core_executor.hpp"
 
+#include "timer.hpp"
+
 static const cv::String keys =
         "{user_name      |pi| name of system user                }"
         "{args_include   |false| use custom config               }"
@@ -31,6 +33,18 @@ static const cv::String keys =
         "{gui            |true| show gui                         }"
         "{help           |false| show gui                        }";
 
+void bar() {
+    using namespace std::chrono;
+    int64_t timestamp = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+    std::cout << "EEEEEEEEEEROCK\n" << timestamp;
+}
+
+void ba2r() {
+    using namespace std::chrono;
+    int64_t timestamp = duration_cast<milliseconds>(system_clock::now().time_since_epoch()).count();
+    std::cout << "EEEEEEEEEEROCK2\n" << timestamp;
+}
+
 int main(int argc, char *argv[]) {
     cv::CommandLineParser parser(argc, argv, keys);
 
@@ -43,6 +57,19 @@ int main(int argc, char *argv[]) {
         std::cout << keys;
         return 0;
     }
+
+    auto timer = Timer();
+
+    //todo remove
+    timer.add(std::chrono::milliseconds(1000) , bar);
+    timer.add(std::chrono::milliseconds(500) , ba2r);
+
+    auto timestamp = std::to_string(2142);
+    std::string prob = std::to_string(0.72);
+    auto personId= "ant";
+    auto call_script = std::string("/usr/bin/python3.8 ../../py/main.py -id ") + personId + std::string(" -p ") + prob + std::string(" -t ") + timestamp;
+
+    system(call_script.c_str());
 
     DetectorType detector_type;
     auto classifier_type = ClassifierType::face_reidentification_retail_0095;
@@ -107,22 +134,22 @@ int main(int argc, char *argv[]) {
     const int height = parser.get<int>("height");
     const auto source = parser.get<std::string>("source");
 
-    cv::VideoCapture capture;
+    std::shared_ptr<cv::VideoCapture> capture;
     if (source == "0") {
-        capture = cv::VideoCapture(0);
+        capture = std::make_shared<cv::VideoCapture>(0);
     } else {
         // /study/data/video/me.mp4
-        capture = cv::VideoCapture(home_dir + source);
+        capture = std::make_shared<cv::VideoCapture>(home_dir + source);
     }
-    if (!capture.isOpened()) {
+    if (!capture->isOpened()) {
         throw std::runtime_error("Couldn't open a video stream");
     }
 
     if (gui) {
         cv::namedWindow("NCSRecognition");
     }
-    capture.set(cv::CAP_PROP_FRAME_WIDTH, width);
-    capture.set(cv::CAP_PROP_FRAME_HEIGHT, height);
+    capture->set(cv::CAP_PROP_FRAME_WIDTH, width);
+    capture->set(cv::CAP_PROP_FRAME_HEIGHT, height);
 
     std::cout << "Device: " << device << std::endl;
     std::cout << "Stream Source: " << source << std::endl;
@@ -146,6 +173,6 @@ int main(int argc, char *argv[]) {
     core_executor->initBD(db);
     core_executor->play(gui, flip, capture);
     std::cout << "AVG FPS: " << core_executor->getAvgFps() << std::endl;
-    capture.release();
+    capture->release();
     cv::destroyAllWindows();
 }

@@ -16,7 +16,7 @@ execute_process(COMMAND
 
 message("-- [MAIN] ARCH IS: ${CMAKE_DEB_HOST_ARCH}")
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 if(${CMAKE_DEB_HOST_ARCH} MATCHES "arm")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=armv7-a -std=c++17 -Wno-psabi -pthread")
 elseif(${CMAKE_DEB_HOST_ARCH} MATCHES "64")

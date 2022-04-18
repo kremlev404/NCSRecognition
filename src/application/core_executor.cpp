@@ -6,8 +6,10 @@
 #include <utility>
 
 #include <opencv2/core/mat.hpp>
+#include <numeric>
 
 #include "core_executor.hpp"
+#include "face_recognizer.hpp"
 
 CoreExecutor::CoreExecutor(std::shared_ptr<Classifier> classifier,
                            std::shared_ptr<Detector> face_detector,
@@ -71,13 +73,19 @@ void CoreExecutor::initBD(const std::string &db) {
 
     for (const auto&[key, value]: peoples) {
         for (const auto &it: value) {
-            std::cout << "Person: " << key << " FileName: " << it.file_name << " Desc: " << it.descriptor[0]
-                      << "\n";
+            std::cout << "Person: " << key << " FileName: " << it.file_name;
+            std::cout << " AVG: " << std::reduce(it.descriptor.begin(), it.descriptor.end()) /
+                                     static_cast<float>( it.descriptor.size()) << " Desc: ";
+            for (const auto &i: it.descriptor) {
+                std::cout << i << ",";
+            }
+
+            std::cout << std::endl;
         }
     }
 }
 
-void CoreExecutor::play(const bool gui, const bool flip, cv::VideoCapture capture) {
+void CoreExecutor::play(const bool gui, const bool flip, const std::shared_ptr<cv::VideoCapture>& capture) {
     cv::Mat image;
     std::vector<cv::Rect_<int>> faces;
     int32_t frame_counter = 0;
@@ -87,7 +95,7 @@ void CoreExecutor::play(const bool gui, const bool flip, cv::VideoCapture captur
         std::chrono::high_resolution_clock::time_point t1 =
                 std::chrono::high_resolution_clock::now();
 
-        capture >> image;
+        *capture >> image;
         if (image.empty()) {
             return;
         }
