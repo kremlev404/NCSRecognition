@@ -2,6 +2,7 @@
  * Performed by Anton Kremlev
  */
 
+#include <algorithm>
 #include <chrono>
 #include <numeric>
 #include <iostream>
@@ -11,7 +12,7 @@
 FirebaseInteractor::FirebaseInteractor(int period) : max_period(period) {}
 
 long FirebaseInteractor::get_now() {
-    return duration_cast<std::chrono::milliseconds>(
+    return std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
@@ -48,7 +49,7 @@ void FirebaseInteractor::send_to_firebase() {
                     .append(timestamp);
 
             std::cout << "FirebaseInteractor::send_to_firebase " << call_script << std::endl;
-            system(call_script.c_str());
+            (void)system(call_script.c_str());
             person.second.need_to_be_updated = false;
         }
     }

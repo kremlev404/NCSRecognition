@@ -6,7 +6,6 @@
 #include <utility>
 
 #include <opencv2/core/mat.hpp>
-#include <numeric>
 
 #include "core_executor.hpp"
 #include "face_recognizer.hpp"
@@ -79,8 +78,12 @@ void CoreExecutor::initBD(const std::string &db) {
     for (const auto &[key, value]: peoples) {
         for (const auto &it: value) {
             std::cout << "Person: " << key << " FileName: " << it.file_name;
-            std::cout << " AVG: " << std::reduce(it.descriptor.begin(), it.descriptor.end()) /
-                                     static_cast<float>( it.descriptor.size()) << " Desc: ";
+            float avg = 0;
+            //std::reduce doesn't exist in std in gnu 8.3 witch used in raspberry
+            for (const auto &descriptor_value: it.descriptor) {
+                avg += descriptor_value;
+            }
+            std::cout << " AVG: " << avg / static_cast<float>( it.descriptor.size()) << " Desc: ";
             for (const auto &i: it.descriptor) {
                 std::cout << i << ",";
             }
