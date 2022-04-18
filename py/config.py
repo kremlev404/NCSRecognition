@@ -15,4 +15,4 @@ firebaseConfig = {
 
 userId = "mId:kremlev404"
 deviceId = "rsId:homeUbuntu"
-deviceType = "raspberry"
+deviceType = "x86"

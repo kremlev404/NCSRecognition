@@ -133,7 +133,7 @@ int main(int argc, char *argv[]) {
     std::cout << "Detector_xml: " << detector_xml << std::endl;
     std::cout << "Detector_bin: " << detector_bin << std::endl;
     std::cout << "Detector Type: " << detector_type << std::endl;
-    std::cout << "Period: " << period << std::endl;
+    std::cout << "Period: " << period << "ms " << std::endl;
     std::cout << "People: " << db << std::endl;
     std::cout << "Resolution: " << width << "x" << height << std::endl;
     std::cout << "gui: " << gui << std::endl;
