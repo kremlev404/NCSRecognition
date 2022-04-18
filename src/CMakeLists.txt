@@ -27,7 +27,8 @@ set(SOURCES
         include/core_executor.hpp
         lib/vino_net.cpp
         include/vino_net.hpp
-        lib/timer.cpp include/timer.hpp)
+        lib/timer.cpp
+        include/timer.hpp include/firebase_interactor.hpp lib/firebase_interactor.cpp include/data/person_period_data.hpp)
 
 add_library(CPPClassificator SHARED ${SOURCES})
 target_link_libraries(CPPClassificator ${OpenCV_LIBS} ${IE_SHARED_LIBS})

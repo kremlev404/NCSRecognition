@@ -10,15 +10,20 @@
 
 #include "core_executor.hpp"
 #include "face_recognizer.hpp"
+#include "timer.hpp"
+#include "firebase_interactor.hpp"
 
 CoreExecutor::CoreExecutor(std::shared_ptr<Classifier> classifier,
                            std::shared_ptr<Detector> face_detector,
                            std::shared_ptr<FaceAligner> aligner,
-                           std::shared_ptr<LandmarkDetector> landmark_detector) :
+                           std::shared_ptr<LandmarkDetector> landmark_detector,
+                           int update_period) :
         classifier(std::move(classifier)),
         face_detector(std::move(face_detector)),
         aligner(std::move(aligner)),
-        landmark_detector(std::move(landmark_detector)) {
+        landmark_detector(std::move(landmark_detector)),
+        firebase_interactor(std::make_unique<FirebaseInteractor>(update_period)),
+        timer(std::make_unique<Timer>(update_period)) {
 
 }
 
@@ -71,7 +76,7 @@ void CoreExecutor::initBD(const std::string &db) {
     std::cout << "DB of users scanned" << std::endl;
     std::cout << peoples.size() << "\n";
 
-    for (const auto&[key, value]: peoples) {
+    for (const auto &[key, value]: peoples) {
         for (const auto &it: value) {
             std::cout << "Person: " << key << " FileName: " << it.file_name;
             std::cout << " AVG: " << std::reduce(it.descriptor.begin(), it.descriptor.end()) /
@@ -85,7 +90,9 @@ void CoreExecutor::initBD(const std::string &db) {
     }
 }
 
-void CoreExecutor::play(const bool gui, const bool flip, const std::shared_ptr<cv::VideoCapture>& capture) {
+void CoreExecutor::play(const bool gui, const bool flip, const std::shared_ptr<cv::VideoCapture> &capture) {
+    timer->start([capture = firebase_interactor.get()] { capture->send_to_firebase(); });
+
     cv::Mat image;
     std::vector<cv::Rect_<int>> faces;
     int32_t frame_counter = 0;
@@ -126,7 +133,7 @@ void CoreExecutor::play(const bool gui, const bool flip, const std::shared_ptr<c
             float max_distance = -1;
             std::string max_key;
 
-            for (const auto&[person_name, person_data]: peoples) {
+            for (const auto &[person_name, person_data]: peoples) {
                 for (auto face_data: person_data) {
                     float distance = classifier->compareDescriptors(face_data.descriptor, result);
 
@@ -143,6 +150,7 @@ void CoreExecutor::play(const bool gui, const bool flip, const std::shared_ptr<c
                 cv::putText(image, "unknown", cv::Point(face.tl()),
                             cv::FONT_HERSHEY_COMPLEX_SMALL, 1, unknown_color);
             } else {
+                firebase_interactor->push(max_key, max_distance);
                 cv::rectangle(image, face, known_color);
                 std::string text =
                         max_key + std::string(": ") + std::to_string(max_distance);
@@ -176,6 +184,7 @@ void CoreExecutor::play(const bool gui, const bool flip, const std::shared_ptr<c
             cv::imshow("NCSRecognition", image);
             cv::waitKey(1);
             if (cv::getWindowImageRect("NCSRecognition").x == -1) {
+                timer->stop();
                 std::cout << "X was pressed\n";
                 need_to_play = false;
             }

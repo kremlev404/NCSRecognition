@@ -18,6 +18,8 @@
 #include "face_aligner.hpp"
 #include "landmarks_detector.hpp"
 #include "data/face_data.hpp"
+#include "firebase_interactor.hpp"
+#include "timer.hpp"
 
 class CoreExecutor {
 private:
@@ -31,6 +33,8 @@ private:
     std::shared_ptr<Detector> face_detector;
     std::shared_ptr<FaceAligner> aligner;
     std::shared_ptr<LandmarkDetector> landmark_detector;
+    std::unique_ptr<FirebaseInteractor> firebase_interactor;
+    std::unique_ptr<Timer> timer;
 
     cv::Scalar color = cv::Scalar(211, 235, 0);
     cv::Scalar known_color = cv::Scalar(211, 235, 0);
@@ -45,10 +49,11 @@ public:
 
     void initBD(const std::string &string);
 
-    void play(bool gui, bool flip, const std::shared_ptr<cv::VideoCapture>& capture);
+    void play(bool gui, bool flip, const std::shared_ptr<cv::VideoCapture> &capture);
 
     CoreExecutor(std::shared_ptr<Classifier> classifier,
                  std::shared_ptr<Detector> face_detector,
                  std::shared_ptr<FaceAligner> aligner,
-                 std::shared_ptr<LandmarkDetector> landmark_detector);
+                 std::shared_ptr<LandmarkDetector> landmark_detector,
+                 int update_period);
 };

@@ -8,7 +8,16 @@
 #include <functional>
 
 class Timer {
+private:
+    int period;
+    bool need_to_work;
+
+    void play(const std::function<void()> &callback) const;
+
 public:
-    void add(std::chrono::milliseconds delay,
-             const std::function<void()> &callback);
+    void stop();
+
+    void start(const std::function<void()> &callback);
+
+    explicit Timer(int period);
 };
