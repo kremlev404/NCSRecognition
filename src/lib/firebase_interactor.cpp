@@ -11,7 +11,7 @@
 
 FirebaseInteractor::FirebaseInteractor(int period) : max_period(period) {}
 
-long FirebaseInteractor::get_now() {
+long long FirebaseInteractor::get_now() {
     return std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::system_clock::now().time_since_epoch()).count();
 }
