@@ -48,7 +48,7 @@ void FirebaseInteractor::send_to_firebase() {
 
             std::string prob = std::to_string(get_avg(person_id));
 
-            auto call_script = std::string("/usr/bin/python3.8 ../../py/main.py -id ")
+            auto call_script = std::string("/usr/bin/python3 ../../py/main.py -id ")
                     .append(person_id)
                     .append(" -p ")
                     .append(prob)
