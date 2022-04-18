@@ -7,6 +7,9 @@
 * Raspbian buster:
 1) Raspberry 3b+
 2) Openvino 2020_1 //models 2019 R3
+### Build:
+1) mkdir build && cd build
+2) cmake -B . -S ..
 ### Neural Calculation Performed by NCS2
 ### Models can be downloaded here: https://download.01.org/opencv/ or via downloader
 ### Args Example: -user_name=pi -args_include=false -d_type=4

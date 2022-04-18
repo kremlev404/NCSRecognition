@@ -38,7 +38,14 @@ void FirebaseInteractor::send_to_firebase() {
         if (person.second.need_to_be_updated) {
             const std::string person_id = person.first;
             remove_old(person_id);
-            auto timestamp = std::to_string(get_now());
+
+            const auto timestamp_value = get_now();
+            std::string timestamp_message;
+            if (timestamp_value / timestamp_corrector_value > 0)
+                timestamp_message.append(std::to_string(timestamp_value));
+            else
+                timestamp_message.append(std::to_string(timestamp_value * 1000));
+
             std::string prob = std::to_string(get_avg(person_id));
 
             auto call_script = std::string("/usr/bin/python3.8 ../../py/main.py -id ")
@@ -46,10 +53,10 @@ void FirebaseInteractor::send_to_firebase() {
                     .append(" -p ")
                     .append(prob)
                     .append(" -t ")
-                    .append(timestamp);
+                    .append(timestamp_message);
 
             std::cout << "FirebaseInteractor::send_to_firebase " << call_script << std::endl;
-            (void)system(call_script.c_str());
+            (void) system(call_script.c_str());
             person.second.need_to_be_updated = false;
         }
     }

@@ -11,6 +11,8 @@
 
 class FirebaseInteractor {
 private:
+    static constexpr long timestamp_corrector_value = 1000000000000;
+
     std::map<std::string, PersonPeriodData> period_data;
 
     int max_period;
