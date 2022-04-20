@@ -18,8 +18,6 @@ _deps
 __pycache__
 cmake-build-release
 cmake-build-debug
-pi/.idea/
-pi/cmake-build-debug/
 NCSRecognition
 build/
 data/

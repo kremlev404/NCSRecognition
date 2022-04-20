@@ -11,6 +11,7 @@
 2) cmake -B . -S ..
 3) execute makeDataTree.sh to create data folder
 4) go to data folder and follow guide's in each folder 
+5) in build/src folder run sudo ./NCSRecognition
 ### Neural Calculation Performed by NCS2
 ### Models can be downloaded here: https://download.01.org/opencv/ or via downloader
 ### Args Example: -args_include=false -d_type=4
