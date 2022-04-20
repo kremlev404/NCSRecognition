@@ -10,6 +10,7 @@
 class Timer {
 private:
     int period;
+
     bool need_to_work;
 
     void play(const std::function<void()> &callback) const;

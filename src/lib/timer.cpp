@@ -21,10 +21,10 @@ void Timer::start(const std::function<void()> &callback) {
 }
 
 void Timer::play(const std::function<void()> &callback) const {
-    std::thread([=]() {
+    std::thread([=, this]() {
         Repeat:
         {
-            std::thread([=]() {
+            std::thread([=, this]() {
                 std::this_thread::sleep_for(std::chrono::milliseconds(period));
                 callback();
             }).join();

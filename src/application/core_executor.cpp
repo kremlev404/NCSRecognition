@@ -37,7 +37,7 @@ std::vector<float> CoreExecutor::getEmbed(const std::string &path_to_image) {
     std::vector<cv::Rect_<int>> detected_faces = face_detector->detect(image);
     cv::Rect face_rect = detected_faces[0];
     landmarks = landmark_detector->detect(image(face_rect));
-    cv::Mat transformedFace = aligner->align(image(face_rect), landmarks);;
+    cv::Mat transformedFace = aligner->align(image(face_rect), landmarks);
 
     cv::resize(transformedFace, transformedFace, cv::Size(160, 160));
     return classifier->embed(transformedFace);

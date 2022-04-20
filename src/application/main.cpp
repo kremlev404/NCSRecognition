@@ -16,18 +16,20 @@
 #include "core_executor.hpp"
 
 static const cv::String keys =
-        "{user_name      |pi| name of system user                }"
         "{args_include   |false| use custom config               }"
         "{device         |MYRIAD| backend device (CPU, MYRIAD)   }"
-        "{xml            |<none>| path to model definition       }"
-        "{bin            |<none>| path to model weights          }"
+        "{recognition_xml|<none>| path to model recognition      }"
+        "{recognition_bin|<none>| path to model recognition      }"
+        "{detector_xml   |<none>| path to model detector         }"
+        "{detector_bin   |<none>| path to model detector         }"
+        "{landmark_xml   |<none>| path to model landmark         }"
+        "{landmark_bin   |<none>| path to model landmark         }"
         "{detector       |<none>| path to face detector          }"
         "{d_type         |4| type of face detector               }"
-        "{db             |<none>| path to reference people       }"
         "{width          |640| stream width                      }"
         "{height         |480| stream height                     }"
         "{period         |2000| stream height                    }"
-        "{source         |/study/data/video/me.mp4| stream source}"
+        "{source         |/video/me.mp4| stream source           }"
         "{flip           |false| flip stream images              }"
         "{gui            |true| show gui                         }"
         "{help           |false| show gui                        }";
@@ -48,7 +50,7 @@ int main(int argc, char *argv[]) {
     DetectorType detector_type;
     auto classifier_type = ClassifierType::face_reidentification_retail_0095;
 
-    std::string home_dir = "/home/" + parser.get<std::string>("user_name");
+    std::string data_dir = "../../data";
     std::string recognition_xml, recognition_bin, detector_xml, detector_bin, landmark_xml, landmark_bin, db;
 
     switch (parser.get<std::string>("d_type")[0]) {
@@ -68,37 +70,42 @@ int main(int argc, char *argv[]) {
             return -1;
         }
     }
+
     if (parser.get<bool>("args_include")) {
         recognition_xml = parser.get<std::string>("recognition_xml");
         recognition_bin = parser.get<std::string>("recognition_bin");
         detector_xml = parser.get<std::string>("detector_xml");
-        db = parser.get<std::string>("db");
+        detector_bin = parser.get<std::string>("detector_bin");
+        landmark_xml = parser.get<std::string>("detector_xml");
+        landmark_bin = parser.get<std::string>("detector_bin");
     } else {
-        recognition_xml = recognition_bin = detector_xml = detector_bin = landmark_xml = landmark_bin = db = home_dir;
-        recognition_xml += "/study/data/face-reidentification-retail-0095.xml";
-        recognition_bin += "/study/data/face-reidentification-retail-0095.bin";
-        landmark_xml += "/study/data/landmarks-regression-retail-0009.xml";
-        landmark_bin += "/study/data/landmarks-regression-retail-0009.bin";
+        recognition_xml = recognition_bin = detector_xml = detector_bin = landmark_xml = landmark_bin = db = data_dir;
+
+        recognition_xml += "/models/face-reidentification-retail-0095/FP16/face-reidentification-retail-0095.xml";
+        recognition_bin += "/models/face-reidentification-retail-0095/FP16/face-reidentification-retail-0095.bin";
+        landmark_xml += "/models/landmarks-regression-retail-0009/FP16/landmarks-regression-retail-0009.xml";
+        landmark_bin += "/models/landmarks-regression-retail-0009/FP16/landmarks-regression-retail-0009.bin";
+
         switch (detector_type) {
             case DetectorType::face_detection_retail_0004: {
-                detector_xml += "/study/data/face-detection-retail-0004/FP16/face-detection-retail-0004.xml";
-                detector_bin += "/study/data/face-detection-retail-0004/FP16/face-detection-retail-0004.bin";
+                detector_xml += "/models/face-detection-retail-0004/FP16/face-detection-retail-0004.xml";
+                detector_bin += "/models/face-detection-retail-0004/FP16/face-detection-retail-0004.bin";
                 break;
             }
             case DetectorType::face_detection_retail_0001: {
-                detector_xml += "/study/data/face-detection-adas-0001/FP16/face-detection-adas-0001.xml";
-                detector_bin += "/study/data/face-detection-adas-0001/FP16/face-detection-adas-0001.bin";
+                detector_xml += "/models/face-detection-adas-0001/FP16/face-detection-adas-0001.xml";
+                detector_bin += "/models/face-detection-adas-0001/FP16/face-detection-adas-0001.bin";
                 break;
             }
             case DetectorType::haar_cascade: {
-                detector_xml += "/study/data/haarcascade_frontalcatface.xml";
+                detector_xml += "/models/haarcascade_frontalcatface/haarcascade_frontalcatface.xml";
                 break;
             }
             default: {
                 return -1;
             }
         }
-        db += "/study/data/db/";
+        db += "/db";
     }
 
     const auto device = parser.get<std::string>("device");
@@ -113,8 +120,8 @@ int main(int argc, char *argv[]) {
     if (source == "0") {
         capture = std::make_shared<cv::VideoCapture>(0);
     } else {
-        // /study/data/video/me.mp4
-        capture = std::make_shared<cv::VideoCapture>(home_dir + source);
+        // video/me.mp4
+        capture = std::make_shared<cv::VideoCapture>(data_dir + source);
     }
     if (!capture->isOpened()) {
         throw std::runtime_error("Couldn't open a video stream");
@@ -138,7 +145,8 @@ int main(int argc, char *argv[]) {
     std::cout << "Resolution: " << width << "x" << height << std::endl;
     std::cout << "gui: " << gui << std::endl;
 
-    const std::shared_ptr<Classifier> classifier = build_classifier(classifier_type, recognition_xml, recognition_bin, device);
+    const std::shared_ptr<Classifier> classifier = build_classifier(classifier_type, recognition_xml, recognition_bin,
+                                                                    device);
     auto face_detector = build_detector(detector_type, detector_xml, detector_bin);
     auto aligner = std::make_shared<FaceAligner>();
     auto landmark_detector = std::make_shared<LandmarkDetector>(landmark_xml, landmark_bin);
