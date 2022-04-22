@@ -36,7 +36,11 @@ target_link_libraries(CPPClassificator ${OpenCV_LIBS} ${IE_SHARED_LIBS})
 # MAKE Application
 set(SOURCES application/main.cpp application/core_executor.cpp)
 add_executable(NCSRecognition ${SOURCES})
+if(IS_RASPBERRY) 
+target_link_libraries(NCSRecognition CPPClassificator ${OpenCV_LIBS} ${WIRING_PI_LIB} ${IE_SHARED_LIBS}  "stdc++fs")
+else()
 target_link_libraries(NCSRecognition CPPClassificator ${OpenCV_LIBS} ${IE_SHARED_LIBS}  "stdc++fs")
+endif()
 
 # MAKE Install
 install(TARGETS CPPClassificator NCSRecognition
