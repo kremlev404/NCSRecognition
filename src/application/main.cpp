@@ -9,11 +9,12 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/videoio/videoio.hpp>
 
-#include "classifier.hpp"
-#include "detector.hpp"
+#include "iclassifier.hpp"
+#include "idetector.hpp"
 #include "face_aligner.hpp"
 #include "landmarks_detector.hpp"
 #include "core_executor.hpp"
+#include "igpio.hpp"
 
 static const cv::String keys =
         "{args_include   |false| use custom config               }"
@@ -139,19 +140,20 @@ int main(int argc, char *argv[]) {
     std::cout << "Recognize BIN: " << recognition_bin << std::endl;
     std::cout << "Detector_xml: " << detector_xml << std::endl;
     std::cout << "Detector_bin: " << detector_bin << std::endl;
-    std::cout << "Detector Type: " << detector_type << std::endl;
+    std::cout << "IDetector Type: " << detector_type << std::endl;
     std::cout << "Period: " << period << "ms " << std::endl;
     std::cout << "People: " << db << std::endl;
     std::cout << "Resolution: " << width << "x" << height << std::endl;
     std::cout << "gui: " << gui << std::endl;
 
-    const std::shared_ptr<Classifier> classifier = build_classifier(classifier_type, recognition_xml, recognition_bin,
-                                                                    device);
+    const std::shared_ptr<IClassifier> classifier = build_classifier(classifier_type, recognition_xml, recognition_bin,
+                                                                     device);
     auto face_detector = build_detector(detector_type, detector_xml, detector_bin);
     auto aligner = std::make_shared<FaceAligner>();
     auto landmark_detector = std::make_shared<LandmarkDetector>(landmark_xml, landmark_bin);
+    auto gpio_controller = build_gpio_controller();
 
-    auto core_executor = std::make_unique<CoreExecutor>(classifier, face_detector, aligner, landmark_detector, period);
+    auto core_executor = std::make_unique<CoreExecutor>(classifier, face_detector, aligner, landmark_detector, gpio_controller, period);
 
     core_executor->initBD(db);
     core_executor->play(gui, flip, capture);

@@ -12,9 +12,9 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/objdetect/objdetect.hpp>
 
-#include "detector.hpp"
+#include "idetector.hpp"
 
-class FaceDetectorCascade : public Detector {
+class FaceDetectorCascade : public IDetector {
 private:
     double scale_factor;
     int min_neighbors;

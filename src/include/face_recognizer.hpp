@@ -12,10 +12,10 @@
 #include <opencv2/highgui.hpp>
 #include <utility>
 
-#include "classifier.hpp"
+#include "iclassifier.hpp"
 #include "vino_net.hpp"
 
-class FaceRecognizer : public Classifier, protected VinoNet {
+class FaceRecognizer : public IClassifier, protected VinoNet {
 private:
     static float cosSimilarity(std::vector<float> &first, std::vector<float> &second);
 public:

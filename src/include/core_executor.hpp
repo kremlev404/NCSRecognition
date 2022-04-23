@@ -13,13 +13,14 @@
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/videoio/videoio.hpp>
 
-#include "classifier.hpp"
-#include "detector.hpp"
+#include "iclassifier.hpp"
+#include "idetector.hpp"
 #include "face_aligner.hpp"
 #include "landmarks_detector.hpp"
 #include "data/face_data.hpp"
 #include "firebase_interactor.hpp"
 #include "timer.hpp"
+#include "igpio.hpp"
 
 class CoreExecutor {
 private:
@@ -29,10 +30,11 @@ private:
     //
     std::map<std::string, std::vector<FaceData>> peoples;
 
-    std::shared_ptr<Classifier> classifier;
-    std::shared_ptr<Detector> face_detector;
+    std::shared_ptr<IClassifier> classifier;
+    std::shared_ptr<IDetector> face_detector;
     std::shared_ptr<FaceAligner> aligner;
     std::shared_ptr<LandmarkDetector> landmark_detector;
+    std::shared_ptr<IGPIO> gpio_controller;
     std::unique_ptr<FirebaseInteractor> firebase_interactor;
     std::unique_ptr<Timer> timer;
 
@@ -51,9 +53,10 @@ public:
 
     void play(bool gui, bool flip, const std::shared_ptr<cv::VideoCapture> &capture);
 
-    CoreExecutor(std::shared_ptr<Classifier> classifier,
-                 std::shared_ptr<Detector> face_detector,
+    CoreExecutor(std::shared_ptr<IClassifier> classifier,
+                 std::shared_ptr<IDetector> face_detector,
                  std::shared_ptr<FaceAligner> aligner,
                  std::shared_ptr<LandmarkDetector> landmark_detector,
+                 std::shared_ptr<IGPIO> gpio_controller,
                  int update_period);
 };

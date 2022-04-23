@@ -12,15 +12,17 @@
 #include "timer.hpp"
 #include "firebase_interactor.hpp"
 
-CoreExecutor::CoreExecutor(std::shared_ptr<Classifier> classifier,
-                           std::shared_ptr<Detector> face_detector,
+CoreExecutor::CoreExecutor(std::shared_ptr<IClassifier> classifier,
+                           std::shared_ptr<IDetector> face_detector,
                            std::shared_ptr<FaceAligner> aligner,
                            std::shared_ptr<LandmarkDetector> landmark_detector,
+                           std::shared_ptr<IGPIO> gpio_controller,
                            int update_period) :
         classifier(std::move(classifier)),
         face_detector(std::move(face_detector)),
         aligner(std::move(aligner)),
         landmark_detector(std::move(landmark_detector)),
+        gpio_controller(std::move(gpio_controller)),
         firebase_interactor(std::make_unique<FirebaseInteractor>(update_period)),
         timer(std::make_unique<Timer>(update_period)) {
 
@@ -149,10 +151,16 @@ void CoreExecutor::play(const bool gui, const bool flip, const std::shared_ptr<c
 
             // Approximate threshold
             if (max_distance < 0.5) {
+                gpio_controller->ledOff(LedOutput::green_led);
+                gpio_controller->ledOn(LedOutput::red_led);
+
                 cv::rectangle(image, face, unknown_color);
                 cv::putText(image, "unknown", cv::Point(face.tl()),
                             cv::FONT_HERSHEY_COMPLEX_SMALL, 1, unknown_color);
             } else {
+                gpio_controller->ledOff(LedOutput::red_led);
+                gpio_controller->ledOn(LedOutput::green_led);
+
                 firebase_interactor->push(max_key, max_distance);
                 cv::rectangle(image, face, known_color);
                 std::string text =

@@ -12,10 +12,10 @@
 #include <opencv2/highgui.hpp>
 #include <utility>
 
-#include "detector.hpp"
+#include "idetector.hpp"
 #include "vino_net.hpp"
 
-class FaceDetector : public Detector, protected VinoNet {
+class FaceDetector : public IDetector, protected VinoNet {
 private:
     float confidence_threshold{};
 
