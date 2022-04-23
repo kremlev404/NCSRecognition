@@ -25,6 +25,7 @@ CoreExecutor::CoreExecutor(std::shared_ptr<IClassifier> classifier,
         gpio_controller(std::move(gpio_controller)),
         firebase_interactor(std::make_unique<FirebaseInteractor>(update_period)),
         timer(std::make_unique<Timer>(update_period)) {
+            
 
 }
 
@@ -201,6 +202,8 @@ void CoreExecutor::play(const bool gui, const bool flip, const std::shared_ptr<c
             }
         }
     }
+    gpio_controller->ledOff(LedOutput::green_led);
+    gpio_controller->ledOff(LedOutput::red_led);
 }
 
 float CoreExecutor::getAvgFps() const {

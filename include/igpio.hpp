@@ -7,8 +7,8 @@
 #include <memory>
 
 enum LedOutput {
-    red_led,
-    green_led
+    red_led = 7, // 7 pin, wiringN is 7
+    green_led = 3 // 15 pin, wiringN is 3
 };
 
 class IGPIO {
