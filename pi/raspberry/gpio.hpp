@@ -7,7 +7,9 @@
 #include "igpio.hpp"
 
 class GPIO : public IGPIO {
-    GPIO() ;
+public:
+    GPIO();
+
     void ledOn(LedOutput ledOutput) override;
 
     void ledOff(LedOutput ledOutput) override;
