@@ -46,6 +46,8 @@ private:
 
     std::vector<float> getEmbed(const std::string &path_to_image);
 
+    void reset();
+
 public:
     float getAvgFps() const;
 

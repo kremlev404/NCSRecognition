@@ -25,7 +25,7 @@ CoreExecutor::CoreExecutor(std::shared_ptr<IClassifier> classifier,
         gpio_controller(std::move(gpio_controller)),
         firebase_interactor(std::make_unique<FirebaseInteractor>(update_period)),
         timer(std::make_unique<Timer>(update_period)) {
-            
+
 
 }
 
@@ -110,13 +110,14 @@ void CoreExecutor::play(const bool gui, const bool flip, const std::shared_ptr<c
 
         *capture >> image;
         if (image.empty()) {
+            reset();
             return;
         }
         frame_counter++;
         if (flip) {
             cv::flip(image, image, 0);
         }
-
+        //cv::resize(image, image, cv::Size(300,300));
         faces = face_detector->detect(image);
         for (cv::Rect &face: faces) {
             bool ignore = false;
@@ -196,16 +197,20 @@ void CoreExecutor::play(const bool gui, const bool flip, const std::shared_ptr<c
             cv::imshow("NCSRecognition", image);
             cv::waitKey(1);
             if (cv::getWindowImageRect("NCSRecognition").x == -1) {
-                timer->stop();
-                std::cout << "X was pressed\n";
                 need_to_play = false;
+                std::cout << "X was pressed\n";
             }
         }
     }
-    gpio_controller->ledOff(LedOutput::green_led);
-    gpio_controller->ledOff(LedOutput::red_led);
+    reset();
 }
 
 float CoreExecutor::getAvgFps() const {
     return avg_fps;
+}
+
+void CoreExecutor::reset() {
+    timer->stop();
+    gpio_controller->ledOff(LedOutput::green_led);
+    gpio_controller->ledOff(LedOutput::red_led);
 }

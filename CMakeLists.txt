@@ -16,7 +16,7 @@ execute_process(COMMAND
 
 message("-- [MAIN] ARCH IS: ${CMAKE_DEB_HOST_ARCH}")
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 if (${CMAKE_DEB_HOST_ARCH} MATCHES "arm")
     set(IS_RASPBERRY ON)
     find_library(WIRING_PI_LIB wiringPi)
