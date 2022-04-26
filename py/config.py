@@ -16,3 +16,5 @@ firebaseConfig = {
 userId = "mId:kremlev404"
 deviceId = "rsId:homeUbuntu"
 deviceType = "x86"
+email = "kremlev404@gmail.com"
+password = "testpass"

@@ -11,10 +11,10 @@
 
 #include "iclassifier.hpp"
 #include "idetector.hpp"
+#include "igpio.hpp"
 #include "face_aligner.hpp"
 #include "landmarks_detector.hpp"
 #include "core_executor.hpp"
-#include "igpio.hpp"
 
 static const cv::String keys =
         "{args_include   |false| use custom config               }"
@@ -30,7 +30,7 @@ static const cv::String keys =
         "{width          |640| stream width                      }"
         "{height         |480| stream height                     }"
         "{period         |2000| stream height                    }"
-        "{source         |/video/me.mp4| stream source           }"
+        "{source         |/video/meB.mp4| stream source           }"
         "{flip           |false| flip stream images              }"
         "{gui            |true| show gui                         }"
         "{help           |false| show gui                        }";

@@ -9,7 +9,7 @@ Testing
 Makefile
 cmake_install.cmake
 install_manifest.txt
-config.py
+py/config.py
 compile_commands.json
 CTestTestfile.cmake
 _deps

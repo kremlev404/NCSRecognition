@@ -15,26 +15,29 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     firebase = pyrebase.initialize_app(config.firebaseConfig)
+    auth = firebase.auth()
+    user = auth.sign_in_with_email_and_password(config.email, config.password)
+    token = user['idToken']
     db = firebase.database()
 
     prob_list = db.child(config.userId).child(config.deviceId).child("pId:" + args.person_id).child(
-        "prob").get().val()
+        "prob").get(token).val()
     timestamp_list = db.child(config.userId).child(config.deviceId).child("pId:" + args.person_id).child(
-        "timestamp").get().val()
+        "timestamp").get(token).val()
 
     # empty person
     if prob_list is None or timestamp_list is None:
         db.child(config.userId).child(config.deviceId).child("pId:" + args.person_id).update(
             {'prob': [args.prob],
-             'timestamp': [args.timestamp]})
-        db.child(config.userId).child(config.deviceId).update({'type': config.deviceType})
+             'timestamp': [args.timestamp]}, token=token)
+        db.child(config.userId).child(config.deviceId).update({'type': config.deviceType}, token=token)
         print("[MAIN.PY] New person created: ", end='')
-        print(db.child(config.userId).child(config.deviceId).get().val())
+        print(db.child(config.userId).child(config.deviceId).get(token).val())
     else:
         prob_list.append(args.prob)
         timestamp_list.append(args.timestamp)
         db.child(config.userId).child(config.deviceId).child("pId:" + args.person_id).update(
             {'prob': prob_list,
-             'timestamp': timestamp_list})
+             'timestamp': timestamp_list}, token=token)
         print("[MAIN.PY] person " + args.person_id + " updated: ", end='')
-        print(db.child(config.userId).child(config.deviceId).get().val())
+        print(db.child(config.userId).child(config.deviceId).get(token).val())
