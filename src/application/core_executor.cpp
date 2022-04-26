@@ -196,9 +196,15 @@ void CoreExecutor::play(const bool gui, const bool flip, const std::shared_ptr<c
         if (gui) {
             cv::imshow("NCSRecognition", image);
             cv::waitKey(1);
-            if (cv::getWindowImageRect("NCSRecognition").x == -1) {
-                need_to_play = false;
+            try {
+                if (cv::getWindowImageRect("NCSRecognition").x == -1) {
+                    need_to_play = false;
+                    std::cout << "X was pressed\n";
+                }
+            } catch ( cv::Exception &e ) {
+                reset();
                 std::cout << "X was pressed\n";
+                return;
             }
         }
     }
