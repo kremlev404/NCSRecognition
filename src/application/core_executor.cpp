@@ -201,7 +201,7 @@ void CoreExecutor::play(const bool gui, const bool flip, const std::shared_ptr<c
                     need_to_play = false;
                     std::cout << "X was pressed\n";
                 }
-            } catch ( cv::Exception &e ) {
+            } catch (cv::Exception &e) {
                 reset();
                 std::cout << "X was pressed\n";
                 return;

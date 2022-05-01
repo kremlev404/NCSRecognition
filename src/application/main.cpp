@@ -49,7 +49,7 @@ int main(int argc, char *argv[]) {
     }
 
     DetectorType detector_type;
-    auto classifier_type = ClassifierType::face_reidentification_retail_0095;
+    auto classifier_type = ClassifierType::face_reindefication_retail_0095;
 
     std::string data_dir = "../../data";
     std::string recognition_xml, recognition_bin, detector_xml, detector_bin, landmark_xml, landmark_bin, db;

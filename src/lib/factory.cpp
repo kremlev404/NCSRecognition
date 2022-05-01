@@ -8,7 +8,7 @@
 
 std::shared_ptr<IClassifier>
 build_classifier(ClassifierType type, const std::string &xml, const std::string &bin, const std::string &device) {
-    if (type == ClassifierType::face_reidentification_retail_0095) {
+    if (type == ClassifierType::face_reindefication_retail_0095) {
         return std::make_shared<FaceRecognizer>(xml, bin);
     } else {
         throw std::runtime_error("Unknown classifier type");

@@ -6,8 +6,6 @@
 
 #include <opencv2/core/mat.hpp>
 
-#include "macros.hpp"
-
 enum DetectorType {
     face_detection_retail_0001,
     face_detection_retail_0004,
@@ -17,9 +15,8 @@ enum DetectorType {
 // Interface of a detector
 class IDetector {
 public:
-    virtual std::vector<cv::Rect> detect(const cv::Mat& image) = 0;
+    virtual std::vector<cv::Rect> detect(const cv::Mat &image) = 0;
 };
 
 // IDetector factory function
-DEFAULT_VISIBILITY
 std::shared_ptr<IDetector> build_detector(DetectorType type, const cv::String &xml, const cv::String &bin);
