@@ -1,15 +1,12 @@
-# BUILD headers
 include_directories("include")
 include_directories("${OpenCV_INCLUDE_DIRS}")
 include_directories("${IE_DIR}/include")
 
-# LINK
 link_directories("${IE_DIR}/lib/armv7l")
 link_directories("${IE_DIR}/lib/intel64")
 
 set(IE_SHARED_LIBS libinference_engine.so)
 
-# MAKE library
 set(SOURCES
         ../include/idetector.hpp
         ../include/iclassifier.hpp
@@ -52,17 +49,16 @@ endif ()
 add_library(NCSLib SHARED ${SOURCES})
 target_link_libraries(NCSLib ${OpenCV_LIBS} ${IE_SHARED_LIBS})
 
-# MAKE Application
 set(SOURCES application/main.cpp application/core_executor.cpp)
-add_executable(NCSRecognition ${SOURCES})
+add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
+
 if (IS_RASPBERRY)
-    target_link_libraries(NCSRecognition NCSLib ${OpenCV_LIBS} ${WIRING_PI_LIB} ${IE_SHARED_LIBS} "stdc++fs")
+    target_link_libraries(${CMAKE_PROJECT_NAME} NCSLib ${OpenCV_LIBS} ${WIRING_PI_LIB} ${IE_SHARED_LIBS} "stdc++fs")
 else ()
-    target_link_libraries(NCSRecognition NCSLib ${OpenCV_LIBS} ${IE_SHARED_LIBS} "stdc++fs")
+    target_link_libraries(${CMAKE_PROJECT_NAME} NCSLib ${OpenCV_LIBS} ${IE_SHARED_LIBS} "stdc++fs")
 endif ()
 
-# MAKE Install
-install(TARGETS NCSLib NCSRecognition
+install(TARGETS NCSLib ${CMAKE_PROJECT_NAME}
         DESTINATION ${PROJECT_SOURCE_DIR}/install/bin)
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include
         DESTINATION ${PROJECT_SOURCE_DIR}/install)
