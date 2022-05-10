@@ -53,12 +53,12 @@ public:
 
     void initBD(const std::string &string);
 
-    void play(bool gui, bool flip, const std::shared_ptr<cv::VideoCapture> &capture);
+    void play(const bool &gui,const bool &flip, const std::shared_ptr<cv::VideoCapture> &capture);
 
     CoreExecutor(std::shared_ptr<IClassifier> classifier,
                  std::shared_ptr<IDetector> face_detector,
                  std::shared_ptr<FaceAligner> aligner,
                  std::shared_ptr<LandmarkDetector> landmark_detector,
                  std::shared_ptr<IGPIO> gpio_controller,
-                 int update_period);
+                 const int &update_period);
 };

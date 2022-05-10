@@ -17,7 +17,7 @@ CoreExecutor::CoreExecutor(std::shared_ptr<IClassifier> classifier,
                            std::shared_ptr<FaceAligner> aligner,
                            std::shared_ptr<LandmarkDetector> landmark_detector,
                            std::shared_ptr<IGPIO> gpio_controller,
-                           int update_period) :
+                           const int &update_period) :
         classifier(std::move(classifier)),
         face_detector(std::move(face_detector)),
         aligner(std::move(aligner)),
@@ -96,7 +96,7 @@ void CoreExecutor::initBD(const std::string &db) {
     }
 }
 
-void CoreExecutor::play(const bool gui, const bool flip, const std::shared_ptr<cv::VideoCapture> &capture) {
+void CoreExecutor::play(const bool &gui, const bool &flip, const std::shared_ptr<cv::VideoCapture> &capture) {
     timer->start([capture = firebase_interactor.get()] { capture->send_to_firebase(); });
 
     cv::Mat image;
@@ -120,17 +120,14 @@ void CoreExecutor::play(const bool gui, const bool flip, const std::shared_ptr<c
         //cv::resize(image, image, cv::Size(300,300));
         faces = face_detector->detect(image);
         for (cv::Rect &face: faces) {
-            bool ignore = false;
-            for (cv::Rect &another_face: faces) {
+            for (const cv::Rect &another_face: faces) {
                 if (face.x > another_face.x && face.y > another_face.y
                     && face.x + face.width < another_face.x + another_face.width
                     && face.y + face.height < another_face.y + another_face.height) {
-                    ignore = true;
+                    continue;
                 }
             }
-            if (ignore) {
-                continue;
-            }
+
             std::vector<float> landmarks = landmark_detector->detect(image(face));
             cv::Mat transformed_face = aligner->align(image(face), landmarks);
 
@@ -141,7 +138,7 @@ void CoreExecutor::play(const bool gui, const bool flip, const std::shared_ptr<c
             std::string max_key;
 
             for (const auto &[person_name, person_data]: peoples) {
-                for (auto face_data: person_data) {
+                for (const auto &face_data: person_data) {
                     float distance = classifier->compareDescriptors(face_data.descriptor, result);
 
                     if (distance > max_distance) {

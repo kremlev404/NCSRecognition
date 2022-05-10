@@ -9,7 +9,7 @@
 
 #include "firebase_interactor.hpp"
 
-FirebaseInteractor::FirebaseInteractor(int period) : max_period(period) {}
+FirebaseInteractor::FirebaseInteractor(const int &period) : max_period(period) {}
 
 long long FirebaseInteractor::get_now() {
     return std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -56,13 +56,13 @@ void FirebaseInteractor::send_to_firebase() {
                     .append(timestamp_message);
 
             std::cout << "FirebaseInteractor::send_to_firebase " << call_script << std::endl;
-            (void) system(call_script.c_str());
+            static_cast<void>(system(call_script.c_str()));
             person.second.need_to_be_updated = false;
         }
     }
 }
 
-void FirebaseInteractor::push(const std::string &id, float prob) {
+void FirebaseInteractor::push(const std::string &id, const float &prob) {
     auto val = period_data.find(id);
     if (val != period_data.end()) {
         remove_old(id);

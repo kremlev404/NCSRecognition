@@ -21,7 +21,7 @@ void Timer::start(const std::function<void()> &callback) {
 }
 
 void Timer::play(const std::function<void()> &callback) const {
-    std::thread([&]() {
+    std::thread([this, callback]() {
         Repeat:
         {
             std::thread([=]() {

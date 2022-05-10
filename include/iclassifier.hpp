@@ -14,7 +14,7 @@ enum ClassifierType {
 // Interface of a classification
 class IClassifier {
 public:
-    virtual float compareDescriptors(std::vector<float> &initial_person, std::vector<float> &compare_person) = 0;
+    virtual float compareDescriptors(const std::vector<float> &initial_person, const std::vector<float> &compare_person) = 0;
 
     virtual std::vector<float> embed(const cv::Mat &face) = 0;
 
@@ -22,4 +22,5 @@ public:
 };
 
 // Classification factory function
-std::shared_ptr<IClassifier> build_classifier(ClassifierType type, const std::string &xml, const std::string &bin, const std::string &device);
+std::shared_ptr<IClassifier>
+build_classifier(const ClassifierType &type, const std::string &xml, const std::string &bin, const std::string &device);

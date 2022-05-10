@@ -7,14 +7,14 @@
 #include <utility>
 
 FaceDetectorCascade::FaceDetectorCascade(const cv::String &model_path,
-                                         double scale_factor,
-                                         int min_neighbors,
-                                         int flags,
-                                         cv::Size min_size)
-        : scale_factor(scale_factor),
-          min_neighbors(min_neighbors),
-          flags(flags),
-          min_size(std::move(min_size)) {
+                                         const double &scale_factor,
+                                         const int &min_neighbors,
+                                         const int &flags,
+                                         cv::Size min_size) :
+        scale_factor(scale_factor),
+        min_neighbors(min_neighbors),
+        flags(flags),
+        min_size(std::move(min_size)) {
     cascade = std::make_shared<cv::CascadeClassifier>();
     cascade->load(model_path);
 }

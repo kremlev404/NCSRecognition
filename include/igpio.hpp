@@ -15,9 +15,9 @@ class IGPIO {
 public:
     IGPIO() = default;
 
-    virtual void ledOn(LedOutput ledOutput) = 0;
+    virtual void ledOn(const LedOutput &ledOutput) = 0;
 
-    virtual void ledOff(LedOutput ledOutput) = 0;
+    virtual void ledOff(const LedOutput &ledOutput) = 0;
 };
 
 std::shared_ptr<IGPIO> build_gpio_controller();

@@ -18,7 +18,8 @@ protected:
     int target;
     std::shared_ptr<cv::dnn::Net> getNet(const std::string &class_name);
 
-    VinoNet(cv::String model_path, cv::String config_path,
+    VinoNet(cv::String model_path,
+            cv::String config_path,
             int input_width,
             int input_height,
             double scale,

@@ -10,7 +10,7 @@ class GPIO : public IGPIO {
 public:
     GPIO();
 
-    void ledOn(LedOutput ledOutput) override;
+    void ledOn(const LedOutput &ledOutput) override;
 
-    void ledOff(LedOutput ledOutput) override;
+    void ledOff(const LedOutput &ledOutput) override;
 };

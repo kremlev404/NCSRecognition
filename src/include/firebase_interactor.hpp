@@ -24,9 +24,9 @@ private:
     float get_avg(const std::string &id);
 
 public:
-    explicit FirebaseInteractor(int period);
+    explicit FirebaseInteractor(const int &period);
 
     void send_to_firebase();
 
-    void push(const std::string &id, float prob);
+    void push(const std::string &id, const float &prob);
 };

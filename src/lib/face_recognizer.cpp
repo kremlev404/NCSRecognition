@@ -19,7 +19,7 @@ std::vector<float> FaceRecognizer::embed(const cv::Mat &image) {
 }
 
 /*cosSimilarity = A*B/(|A|*|B|) */
-float FaceRecognizer::cosSimilarity(std::vector<float> &first, std::vector<float> &second) {
+float FaceRecognizer::cosSimilarity(const std::vector<float> &first, const std::vector<float> &second) {
     if (first.size() != second.size()) {
         throw std::runtime_error("Vectors must have the same size");
     }
@@ -38,7 +38,7 @@ float FaceRecognizer::cosSimilarity(std::vector<float> &first, std::vector<float
     return AB_numerator / AB_denominator;
 }
 
-float FaceRecognizer::compareDescriptors(std::vector<float> &initial_person, std::vector<float> &compare_person) {
+float FaceRecognizer::compareDescriptors(const std::vector<float> &initial_person, const std::vector<float> &compare_person) {
     if (initial_person.size() != compare_person.size()) {
         throw std::runtime_error("Both vectors must have the same size");
     }

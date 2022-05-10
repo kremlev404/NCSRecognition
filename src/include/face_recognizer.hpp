@@ -17,7 +17,8 @@
 
 class FaceRecognizer : public IClassifier, protected VinoNet {
 private:
-    static float cosSimilarity(std::vector<float> &first, std::vector<float> &second);
+    static float cosSimilarity(const std::vector<float> &first, const std::vector<float> &second);
+
 public:
     FaceRecognizer(cv::String model_path, cv::String config_path) : VinoNet(std::move(model_path),
                                                                             std::move(config_path),
@@ -27,5 +28,5 @@ public:
 
     std::vector<float> embed(const cv::Mat &image) override;
 
-    float compareDescriptors(std::vector<float> &initial_person, std::vector<float> &compare_person) override;
+    float compareDescriptors(const std::vector<float> &initial_person, const std::vector<float> &compare_person) override;
 };

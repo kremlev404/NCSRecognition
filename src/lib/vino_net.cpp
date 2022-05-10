@@ -6,8 +6,15 @@
 
 #include "vino_net.hpp"
 
-VinoNet::VinoNet(cv::String model_path, cv::String config_path, int input_width, int input_height, double scale,
-                 cv::Scalar mean, bool swapRB, int backend, int target) :
+VinoNet::VinoNet(cv::String model_path,
+                 cv::String config_path,
+                 int input_width,
+                 int input_height,
+                 double scale,
+                 cv::Scalar mean,
+                 bool swapRB,
+                 int backend,
+                 int target) :
         model_path(std::move(model_path)),
         config_path(std::move(config_path)),
         net_size(cv::Size(input_width, input_height)),

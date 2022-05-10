@@ -6,8 +6,7 @@
 #include "face_detector.hpp"
 #include "face_detector_cascade.hpp"
 
-std::shared_ptr<IClassifier>
-build_classifier(ClassifierType type, const std::string &xml, const std::string &bin, const std::string &device) {
+std::shared_ptr<IClassifier> build_classifier(const ClassifierType &type, const std::string &xml, const std::string &bin, const std::string &device) {
     if (type == ClassifierType::face_reindefication_retail_0095) {
         return std::make_shared<FaceRecognizer>(xml, bin);
     } else {
@@ -15,7 +14,7 @@ build_classifier(ClassifierType type, const std::string &xml, const std::string 
     }
 }
 
-std::shared_ptr<IDetector> build_detector(DetectorType type, const cv::String &xml, const cv::String &bin) {
+std::shared_ptr<IDetector> build_detector(const DetectorType &type, const cv::String &xml, const cv::String &bin) {
     if (type == DetectorType::face_detection_retail_0001) {
         return std::make_shared<FaceDetector>(xml, bin, 0.7, 384, 672);
     } else if (type == DetectorType::face_detection_retail_0004) {

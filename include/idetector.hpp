@@ -19,4 +19,4 @@ public:
 };
 
 // IDetector factory function
-std::shared_ptr<IDetector> build_detector(DetectorType type, const cv::String &xml, const cv::String &bin);
+std::shared_ptr<IDetector> build_detector(const DetectorType &type, const cv::String &xml, const cv::String &bin);

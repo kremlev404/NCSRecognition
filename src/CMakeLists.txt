@@ -49,20 +49,20 @@ else ()
             )
 endif ()
 
-add_library(CPPClassificator SHARED ${SOURCES})
-target_link_libraries(CPPClassificator ${OpenCV_LIBS} ${IE_SHARED_LIBS})
+add_library(NCSLib SHARED ${SOURCES})
+target_link_libraries(NCSLib ${OpenCV_LIBS} ${IE_SHARED_LIBS})
 
 # MAKE Application
 set(SOURCES application/main.cpp application/core_executor.cpp)
 add_executable(NCSRecognition ${SOURCES})
 if (IS_RASPBERRY)
-    target_link_libraries(NCSRecognition CPPClassificator ${OpenCV_LIBS} ${WIRING_PI_LIB} ${IE_SHARED_LIBS} "stdc++fs")
+    target_link_libraries(NCSRecognition NCSLib ${OpenCV_LIBS} ${WIRING_PI_LIB} ${IE_SHARED_LIBS} "stdc++fs")
 else ()
-    target_link_libraries(NCSRecognition CPPClassificator ${OpenCV_LIBS} ${IE_SHARED_LIBS} "stdc++fs")
+    target_link_libraries(NCSRecognition NCSLib ${OpenCV_LIBS} ${IE_SHARED_LIBS} "stdc++fs")
 endif ()
 
 # MAKE Install
-install(TARGETS CPPClassificator NCSRecognition
+install(TARGETS NCSLib NCSRecognition
         DESTINATION ${PROJECT_SOURCE_DIR}/install/bin)
 install(DIRECTORY ${PROJECT_SOURCE_DIR}/include
         DESTINATION ${PROJECT_SOURCE_DIR}/install)

@@ -15,10 +15,10 @@ GPIO::GPIO() {
 }
 
 
-void GPIO::ledOn(LedOutput ledOutput) {
+void GPIO::ledOn(const LedOutput &ledOutput) {
     digitalWrite(ledOutput, HIGH);
 }
 
-void GPIO::ledOff(LedOutput ledOutput) {
+void GPIO::ledOff(const LedOutput &ledOutput) {
     digitalWrite(ledOutput, LOW);
 }

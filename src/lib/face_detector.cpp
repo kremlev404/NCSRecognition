@@ -6,7 +6,8 @@
 
 #include <utility>
 
-FaceDetector::FaceDetector(cv::String model_path, cv::String config_path,
+FaceDetector::FaceDetector(cv::String model_path,
+                           cv::String config_path,
                            float confidence_threshold,
                            int input_width,
                            int input_height,
