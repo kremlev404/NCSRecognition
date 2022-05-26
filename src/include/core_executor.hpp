@@ -11,6 +11,7 @@
 
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <utility>
 #include <opencv2/videoio/videoio.hpp>
 
 #include "iclassifier.hpp"
@@ -38,11 +39,13 @@ private:
     std::unique_ptr<FirebaseInteractor> firebase_interactor;
     std::unique_ptr<Timer> timer;
 
-    cv::Scalar color = cv::Scalar(211, 235, 0);
-    cv::Scalar known_color = cv::Scalar(211, 235, 0);
-    cv::Scalar unknown_color = cv::Scalar(86, 5, 247);
+    const cv::Scalar color = cv::Scalar(211, 235, 0);
+    const cv::Scalar known_color = cv::Scalar(211, 235, 0);
+    const cv::Scalar unknown_color = cv::Scalar(86, 5, 247);
 
     float avg_fps = 0;
+    const cv::Size window_size = cv::Size(480, 720);
+    bool use_gray_filter;
 
     std::vector<float> getEmbed(const std::string &path_to_image);
 
@@ -60,5 +63,19 @@ public:
                  std::shared_ptr<FaceAligner> aligner,
                  std::shared_ptr<LandmarkDetector> landmark_detector,
                  std::shared_ptr<IGPIO> gpio_controller,
-                 const int &update_period);
+                 const int &update_period,
+                 const bool &to_gray_filter);
+};
+
+struct Stats {
+    int frame;
+    std::string id;
+    double prob;
+    float fps;
+
+    Stats(int frame,
+          std::string id,
+          double prob,
+          float fps
+    ) : frame(frame), id(std::move(id)), prob(prob), fps(fps) {}
 };

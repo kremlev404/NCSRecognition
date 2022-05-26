@@ -28,5 +28,7 @@ public:
 
     std::vector<float> embed(const cv::Mat &image) override;
 
+    cv::Size getInputSize() const override;
+
     float compareDescriptors(const std::vector<float> &initial_person, const std::vector<float> &compare_person) override;
 };

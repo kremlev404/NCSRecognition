@@ -27,10 +27,11 @@ static const cv::String keys =
         "{landmark_bin   |<none>| path to model landmark         }"
         "{detector       |<none>| path to face detector          }"
         "{d_type         |4| type of face detector               }"
-        "{width          |640| stream width                      }"
-        "{height         |480| stream height                     }"
-        "{period         |2000| stream height                    }"
-        "{source         |/video/meB.mp4| stream source           }"
+        "{gray           |false| use gray filter in detector      }"
+        "{width          |480| stream width                      }"
+        "{height         |720| stream height                     }"
+        "{period         |5000| stream height                    }"
+        "{source         |/video/kafedra.mp4| stream source      }"
         "{flip           |false| flip stream images              }"
         "{gui            |true| show gui                         }"
         "{help           |false| show gui                        }";
@@ -47,7 +48,7 @@ int main(int argc, char *argv[]) {
         std::cout << keys;
         return 0;
     }
-
+    //cv::dnn::resetMyriadDevice();
     DetectorType detector_type;
     auto classifier_type = ClassifierType::face_reindefication_retail_0095;
 
@@ -116,6 +117,7 @@ int main(int argc, char *argv[]) {
     const int height = parser.get<int>("height");
     const auto source = parser.get<std::string>("source");
     const auto period = parser.get<int>("period");
+    const bool use_gray_filter = parser.get<bool>("gray");
 
     std::shared_ptr<cv::VideoCapture> capture;
     if (source == "0") {
@@ -131,6 +133,7 @@ int main(int argc, char *argv[]) {
     if (gui) {
         cv::namedWindow("NCSRecognition");
     }
+
     capture->set(cv::CAP_PROP_FRAME_WIDTH, width);
     capture->set(cv::CAP_PROP_FRAME_HEIGHT, height);
 
@@ -138,13 +141,13 @@ int main(int argc, char *argv[]) {
     std::cout << "Stream Source: " << source << std::endl;
     std::cout << "Recognize XML: " << recognition_xml << std::endl;
     std::cout << "Recognize BIN: " << recognition_bin << std::endl;
-    std::cout << "Detector_xml: " << detector_xml << std::endl;
-    std::cout << "Detector_bin: " << detector_bin << std::endl;
+    std::cout << "Detector XML: " << detector_xml << std::endl;
+    std::cout << "Detector BIN: " << detector_bin << std::endl;
     std::cout << "IDetector Type: " << detector_type << std::endl;
     std::cout << "Period: " << period << "ms " << std::endl;
     std::cout << "People: " << db << std::endl;
     std::cout << "Resolution: " << width << "x" << height << std::endl;
-    std::cout << "gui: " << gui << std::endl;
+    std::cout << "Use gray filter: " << use_gray_filter << std::endl;
 
     const std::shared_ptr<IClassifier> classifier = build_classifier(classifier_type, recognition_xml, recognition_bin,
                                                                      device);
@@ -153,7 +156,8 @@ int main(int argc, char *argv[]) {
     auto landmark_detector = std::make_shared<LandmarkDetector>(landmark_xml, landmark_bin);
     auto gpio_controller = build_gpio_controller();
 
-    auto core_executor = std::make_unique<CoreExecutor>(classifier, face_detector, aligner, landmark_detector, gpio_controller, period);
+    auto core_executor = std::make_unique<CoreExecutor>(classifier, face_detector, aligner, landmark_detector,
+                                                        gpio_controller, period, use_gray_filter);
 
     core_executor->initBD(db);
     core_executor->play(gui, flip, capture);

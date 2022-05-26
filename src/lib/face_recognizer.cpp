@@ -45,3 +45,7 @@ float FaceRecognizer::compareDescriptors(const std::vector<float> &initial_perso
 
     return cosSimilarity(initial_person, compare_person);
 }
+
+cv::Size FaceRecognizer::getInputSize() const {
+    return net_size;
+}

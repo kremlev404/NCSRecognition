@@ -3,6 +3,7 @@
  */
 
 #include <filesystem>
+#include <fstream>
 #include <utility>
 
 #include <opencv2/core/mat.hpp>
@@ -17,32 +18,46 @@ CoreExecutor::CoreExecutor(std::shared_ptr<IClassifier> classifier,
                            std::shared_ptr<FaceAligner> aligner,
                            std::shared_ptr<LandmarkDetector> landmark_detector,
                            std::shared_ptr<IGPIO> gpio_controller,
-                           const int &update_period) :
+                           const int &update_period,
+                           const bool &to_gray_filter) :
         classifier(std::move(classifier)),
         face_detector(std::move(face_detector)),
         aligner(std::move(aligner)),
         landmark_detector(std::move(landmark_detector)),
         gpio_controller(std::move(gpio_controller)),
         firebase_interactor(std::make_unique<FirebaseInteractor>(update_period)),
-        timer(std::make_unique<Timer>(update_period)) {
-
-
+        timer(std::make_unique<Timer>(update_period)),
+        use_gray_filter(to_gray_filter) {
+    std::cout << "CoreExecutor created\n";
 }
 
 std::vector<float> CoreExecutor::getEmbed(const std::string &path_to_image) {
     cv::Mat image;
+    cv::Mat gray;
 
     image = cv::imread(path_to_image, cv::IMREAD_COLOR);
-
+    cv::resize(image, image, window_size);
     std::vector<float> landmarks;
-    cv::Mat mat;
 
-    std::vector<cv::Rect_<int>> detected_faces = face_detector->detect(image);
+    std::vector<cv::Rect_<int>> detected_faces;
+    if (use_gray_filter) {
+        cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
+        detected_faces = face_detector->detect(gray);
+    } else {
+        detected_faces = face_detector->detect(image);
+    }
+
+    if (detected_faces.empty())
+        return {};
+
     cv::Rect face_rect = detected_faces[0];
     landmarks = landmark_detector->detect(image(face_rect));
-    cv::Mat transformedFace = aligner->align(image(face_rect), landmarks);
+    if (landmarks.empty())
+        return {};
 
-    cv::resize(transformedFace, transformedFace, cv::Size(160, 160));
+    cv::Mat transformedFace = aligner->align(image(face_rect), landmarks);
+    cv::resize(transformedFace, transformedFace, classifier->getInputSize());
+
     return classifier->embed(transformedFace);
 }
 
@@ -59,6 +74,9 @@ void CoreExecutor::initBD(const std::string &db) {
         auto name = i->path().filename();
         if (!is_directory(i->path())) {
             auto descriptor = getEmbed(i->path());
+            if (descriptor.empty()) {
+                continue;
+            }
             person_descriptors.push_back(FaceData{name, descriptor});
         } else {
             if (current_folder != name) {
@@ -70,6 +88,8 @@ void CoreExecutor::initBD(const std::string &db) {
             }
         }
     }
+
+
     if (!person_descriptors.empty()) {
         peoples.insert(std::pair(current_folder, person_descriptors));
         person_descriptors.clear();
@@ -100,16 +120,39 @@ void CoreExecutor::play(const bool &gui, const bool &flip, const std::shared_ptr
     timer->start([capture = firebase_interactor.get()] { capture->send_to_firebase(); });
 
     cv::Mat image;
+    cv::Mat gray;
     std::vector<cv::Rect_<int>> faces;
     int32_t frame_counter = 0;
     float time_counter = 0;
     bool need_to_play = true;
+
+    std::fstream f;
+    std::string file_path = "../../data/statistic/statistic4";
+
+    if (use_gray_filter) {
+        file_path += "G.txt";
+    } else {
+        file_path += ".txt";
+    }
+
+    f.open(file_path, std::fstream::in | std::fstream::out);
+    if (!f.is_open()) {
+        std::cout << "error!";
+        throw std::runtime_error("file error");
+    }
+    std::vector<Stats> statistic;
+
     while (need_to_play) {
         std::chrono::high_resolution_clock::time_point t1 =
                 std::chrono::high_resolution_clock::now();
 
         *capture >> image;
         if (image.empty()) {
+            for (const auto &stat: statistic) {
+                f << stat.frame << ";" << stat.id << ";" << stat.prob << ";" << stat.fps << ";" << std::endl;
+            }
+
+            f.close();
             reset();
             return;
         }
@@ -117,8 +160,14 @@ void CoreExecutor::play(const bool &gui, const bool &flip, const std::shared_ptr
         if (flip) {
             cv::flip(image, image, 0);
         }
-        //cv::resize(image, image, cv::Size(300,300));
-        faces = face_detector->detect(image);
+        cv::resize(image, image, window_size);
+
+        if (use_gray_filter) {
+            cv::cvtColor(image, gray, cv::COLOR_BGR2GRAY);
+            faces = face_detector->detect(gray);
+        } else {
+            faces = face_detector->detect(image);
+        }
         for (cv::Rect &face: faces) {
             for (const cv::Rect &another_face: faces) {
                 if (face.x > another_face.x && face.y > another_face.y
@@ -131,7 +180,7 @@ void CoreExecutor::play(const bool &gui, const bool &flip, const std::shared_ptr
             std::vector<float> landmarks = landmark_detector->detect(image(face));
             cv::Mat transformed_face = aligner->align(image(face), landmarks);
 
-            cv::resize(transformed_face, transformed_face, cv::Size(160, 160));
+            cv::resize(transformed_face, transformed_face, classifier->getInputSize());
             std::vector<float> result = classifier->embed(transformed_face);
 
             float max_distance = -1;
@@ -148,7 +197,6 @@ void CoreExecutor::play(const bool &gui, const bool &flip, const std::shared_ptr
                 }
             }
 
-            // Approximate threshold
             if (max_distance < 0.5) {
                 gpio_controller->ledOff(LedOutput::green_led);
                 gpio_controller->ledOn(LedOutput::red_led);
@@ -156,6 +204,7 @@ void CoreExecutor::play(const bool &gui, const bool &flip, const std::shared_ptr
                 cv::rectangle(image, face, unknown_color);
                 cv::putText(image, "unknown", cv::Point(face.tl()),
                             cv::FONT_HERSHEY_COMPLEX_SMALL, 1, unknown_color);
+
             } else {
                 gpio_controller->ledOff(LedOutput::red_led);
                 gpio_controller->ledOn(LedOutput::green_led);
@@ -167,10 +216,12 @@ void CoreExecutor::play(const bool &gui, const bool &flip, const std::shared_ptr
                 cv::putText(image, text, cv::Point(face.tl()),
                             cv::FONT_HERSHEY_COMPLEX_SMALL, 1, known_color);
 
+
                 if (!gui) {
                     std::cout << "Found -> " << text << std::endl;
                 }
             }
+            statistic.emplace_back(frame_counter, max_key, max_distance, getAvgFps());
         }
 
         // Compute FPS
@@ -205,6 +256,7 @@ void CoreExecutor::play(const bool &gui, const bool &flip, const std::shared_ptr
             }
         }
     }
+
     reset();
 }
 

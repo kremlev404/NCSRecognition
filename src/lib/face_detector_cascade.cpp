@@ -17,6 +17,7 @@ FaceDetectorCascade::FaceDetectorCascade(const cv::String &model_path,
         min_size(std::move(min_size)) {
     cascade = std::make_shared<cv::CascadeClassifier>();
     cascade->load(model_path);
+    std::cout << "FaceDetectorCascade created\n";
 }
 
 

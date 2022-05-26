@@ -18,6 +18,8 @@ public:
 
     virtual std::vector<float> embed(const cv::Mat &face) = 0;
 
+    virtual cv::Size getInputSize() const = 0;
+
     virtual ~IClassifier() = default;
 };
 
