@@ -127,7 +127,7 @@ void CoreExecutor::play(const bool &gui, const bool &flip, const std::shared_ptr
     bool need_to_play = true;
 
     std::fstream f;
-    std::string file_path = "../../data/statistic/statistic4";
+    std::string file_path = "../../data/statistic/statisticH";
 
     if (use_gray_filter) {
         file_path += "G.txt";
@@ -167,6 +167,10 @@ void CoreExecutor::play(const bool &gui, const bool &flip, const std::shared_ptr
             faces = face_detector->detect(gray);
         } else {
             faces = face_detector->detect(image);
+        }
+        if(faces.empty()) {
+            gpio_controller->ledOff(LedOutput::green_led);
+            gpio_controller->ledOff(LedOutput::red_led);
         }
         for (cv::Rect &face: faces) {
             for (const cv::Rect &another_face: faces) {
