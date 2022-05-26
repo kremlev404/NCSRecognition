@@ -149,7 +149,7 @@ void CoreExecutor::play(const bool &gui, const bool &flip, const std::shared_ptr
         *capture >> image;
         if (image.empty()) {
             for (const auto &stat: statistic) {
-                f << stat.frame << ";" << stat.id << ";" << stat.prob << ";" << stat.fps << ";" << std::endl;
+                f << stat.frame << "\t" << stat.id << "\t" << stat.prob << "\t" << stat.fps << std::endl;
             }
 
             f.close();
