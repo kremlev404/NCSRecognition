@@ -168,7 +168,7 @@ void CoreExecutor::play(const bool &gui, const bool &flip, const std::shared_ptr
         } else {
             faces = face_detector->detect(image);
         }
-        if(faces.empty()) {
+        if (faces.empty()) {
             gpio_controller->ledOff(LedOutput::green_led);
             gpio_controller->ledOff(LedOutput::red_led);
         }
@@ -243,6 +243,10 @@ void CoreExecutor::play(const bool &gui, const bool &flip, const std::shared_ptr
         cv::putText(image, "AVG FPS: " + std::to_string(avg_fps),
                     cv::Point(1, 42),
                     cv::FONT_HERSHEY_COMPLEX_SMALL, 1.0, color
+        );
+        cv::putText(image, "Frame:  " + std::to_string(frame_counter),
+                    cv::Point(1, 600),
+                    cv::FONT_HERSHEY_COMPLEX_SMALL, 3.0, unknown_color
         );
 
         if (gui) {

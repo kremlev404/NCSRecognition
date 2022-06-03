@@ -16,7 +16,7 @@
 #include "landmarks_detector.hpp"
 #include "core_executor.hpp"
 
-static const cv::String keys =
+static const cv::String arg_keys =
         "{args_include   |false| use custom config               }"
         "{device         |MYRIAD| backend device (CPU, MYRIAD)   }"
         "{recognition_xml|<none>| path to model recognition      }"
@@ -26,8 +26,8 @@ static const cv::String keys =
         "{landmark_xml   |<none>| path to model landmark         }"
         "{landmark_bin   |<none>| path to model landmark         }"
         "{detector       |<none>| path to face detector          }"
-        "{d_type         |4| type of face detector               }"
-        "{gray           |false| use gray filter in detector      }"
+        "{d_type         |h| type of face detector               }"
+        "{gray           |true| use gray filter in detector      }"
         "{width          |480| stream width                      }"
         "{height         |720| stream height                     }"
         "{period         |5000| stream height                    }"
@@ -37,7 +37,7 @@ static const cv::String keys =
         "{help           |false| show gui                        }";
 
 int main(int argc, char *argv[]) {
-    cv::CommandLineParser parser(argc, argv, keys);
+    cv::CommandLineParser parser(argc, argv, arg_keys);
 
     if (!parser.check()) {
         parser.printErrors();
@@ -45,7 +45,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (parser.get<bool>("help")) {
-        std::cout << keys;
+        std::cout << arg_keys;
         return 0;
     }
     //cv::dnn::resetMyriadDevice();
@@ -100,7 +100,7 @@ int main(int argc, char *argv[]) {
                 break;
             }
             case DetectorType::haar_cascade: {
-                detector_xml += "/models/haarcascade_frontalcatface/haarcascade_frontalcatface.xml";
+                detector_xml += "/models/haarcascade_frontalface/haarcascade_frontalface_default.xml";
                 break;
             }
             default: {
@@ -123,7 +123,6 @@ int main(int argc, char *argv[]) {
     if (source == "0") {
         capture = std::make_shared<cv::VideoCapture>(0);
     } else {
-        // video/me.mp4
         capture = std::make_shared<cv::VideoCapture>(data_dir + source);
     }
     if (!capture->isOpened()) {
