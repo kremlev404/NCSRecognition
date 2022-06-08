@@ -127,7 +127,7 @@ void CoreExecutor::play(const bool &gui, const bool &flip, const std::shared_ptr
     bool need_to_play = true;
 
     std::fstream f;
-    std::string file_path = "../../data/statistic/statisticH";
+    std::string file_path = "../../data/statistic/statisticHA";
 
     if (use_gray_filter) {
         file_path += "G.txt";

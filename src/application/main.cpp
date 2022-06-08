@@ -27,7 +27,7 @@ static const cv::String arg_keys =
         "{landmark_bin   |<none>| path to model landmark         }"
         "{detector       |<none>| path to face detector          }"
         "{d_type         |h| type of face detector               }"
-        "{gray           |true| use gray filter in detector      }"
+        "{gray           |false| use gray filter in detector      }"
         "{width          |480| stream width                      }"
         "{height         |720| stream height                     }"
         "{period         |5000| stream height                    }"
