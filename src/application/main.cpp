@@ -25,16 +25,15 @@ static const cv::String arg_keys =
         "{detector_bin   |<none>| path to model detector         }"
         "{landmark_xml   |<none>| path to model landmark         }"
         "{landmark_bin   |<none>| path to model landmark         }"
-        "{detector       |<none>| path to face detector          }"
-        "{d_type         |h| type of face detector               }"
-        "{gray           |true| use gray filter in detector      }"
+        "{d_type         |4| type of face detector               }"
+        "{gray           |false| use gray filter in detector     }"
         "{width          |480| stream width                      }"
         "{height         |720| stream height                     }"
         "{period         |5000| stream height                    }"
         "{source         |/video/kafedra.mp4| stream source      }"
         "{flip           |false| flip stream images              }"
         "{gui            |true| show gui                         }"
-        "{help           |false| show gui                        }";
+        "{help           |false| show help                       }";
 
 int main(int argc, char *argv[]) {
     cv::CommandLineParser parser(argc, argv, arg_keys);

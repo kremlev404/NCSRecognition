@@ -126,33 +126,12 @@ void CoreExecutor::play(const bool &gui, const bool &flip, const std::shared_ptr
     float time_counter = 0;
     bool need_to_play = true;
 
-    std::fstream f;
-    std::string file_path = "../../data/statistic/statisticH";
-
-    if (use_gray_filter) {
-        file_path += "G.txt";
-    } else {
-        file_path += ".txt";
-    }
-
-    f.open(file_path, std::fstream::in | std::fstream::out);
-    if (!f.is_open()) {
-        std::cout << "error!";
-        throw std::runtime_error("file error");
-    }
-    std::vector<Stats> statistic;
-
     while (need_to_play) {
         std::chrono::high_resolution_clock::time_point t1 =
                 std::chrono::high_resolution_clock::now();
 
         *capture >> image;
         if (image.empty()) {
-            for (const auto &stat: statistic) {
-                f << stat.frame << "\t" << stat.id << "\t" << stat.prob << "\t" << stat.fps << std::endl;
-            }
-
-            f.close();
             reset();
             return;
         }
@@ -225,7 +204,6 @@ void CoreExecutor::play(const bool &gui, const bool &flip, const std::shared_ptr
                     std::cout << "Found -> " << text << std::endl;
                 }
             }
-            statistic.emplace_back(frame_counter, max_key, max_distance, getAvgFps());
         }
 
         // Compute FPS
