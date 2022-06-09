@@ -11,7 +11,6 @@ enum ClassifierType {
     face_reindefication_retail_0095
 };
 
-// Interface of a classification
 class IClassifier {
 public:
     virtual float compareDescriptors(const std::vector<float> &initial_person, const std::vector<float> &compare_person) = 0;
@@ -23,6 +22,4 @@ public:
     virtual ~IClassifier() = default;
 };
 
-// Classification factory function
-std::shared_ptr<IClassifier>
-build_classifier(const ClassifierType &type, const std::string &xml, const std::string &bin, const std::string &device);
+std::shared_ptr<IClassifier> build_classifier(const ClassifierType &type, const std::string &xml, const std::string &bin, const std::string &device);

@@ -12,11 +12,9 @@ enum DetectorType {
     haar_cascade
 };
 
-// Interface of a detector
 class IDetector {
 public:
     virtual std::vector<cv::Rect> detect(const cv::Mat &image) = 0;
 };
 
-// IDetector factory function
 std::shared_ptr<IDetector> build_detector(const DetectorType &type, const cv::String &xml, const cv::String &bin);
